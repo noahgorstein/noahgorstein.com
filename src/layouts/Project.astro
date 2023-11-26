@@ -1,0 +1,75 @@
+---
+import type { CollectionEntry } from "astro:content";
+import BaseHead from "../components/BaseHead.astro";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import TableOfContents from "../components/TableOfContents.astro";
+import type { MarkdownHeading } from "astro";
+
+export interface Props {
+  data: CollectionEntry<"projects">["data"];
+  headings: MarkdownHeading[];
+}
+
+const { title, description, repo } = Astro.props.data;
+
+const { headings } = Astro.props;
+---
+
+<html lang="en">
+  <head>
+    <BaseHead title={title} description={description || ""} />
+  </head>
+
+  <body>
+    <Header />
+    <main class="grid grid-cols-12 gap-4 p-1">
+      <div class="md:col-span-2"></div>
+      <article class="mdx col-span-full px-4 md:col-span-8">
+        <div>
+          <h2 class="mb-2 text-3xl">{title}</h2>
+          <hr />
+        </div>
+        <slot class="text-center" />
+      </article>
+      <aside class="hidden pr-4 md:col-span-2 md:block">
+        <TableOfContents
+          class="sticky top-0 pl-2 pt-8"
+          headings={headings}
+          repo={repo}
+        />
+      </aside>
+    </main>
+
+    <Footer />
+    <script>
+      const setCurrent: IntersectionObserverCallback = (entries) => {
+        for (let entry of entries) {
+          const { id } = entry.target;
+          const tocHeadingEl = document.querySelector(`.toc a[href="#${id}"]`);
+          if (!tocHeadingEl) {
+            return;
+          }
+          if (entry.isIntersecting) {
+            document
+              .querySelectorAll(".toc a")
+              .forEach((e) => e.classList.remove("active"));
+            tocHeadingEl.classList.add("active");
+          }
+        }
+      };
+
+      const observerOption: IntersectionObserverInit = {
+        rootMargin: "0px 0px -66%",
+        threshold: 0,
+      };
+      const headingObserver = new IntersectionObserver(
+        setCurrent,
+        observerOption
+      );
+      document
+        .querySelectorAll("article :is(h2,h3,h4)")
+        .forEach((heading) => headingObserver.observe(heading));
+    </script>
+  </body>
+</html>

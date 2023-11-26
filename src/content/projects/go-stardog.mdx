@@ -1,0 +1,43 @@
+---
+title: "go-stardog"
+description: "a Go library for interacting with Stardog"
+repo: "go-stardog"
+---
+
+import { Image } from "astro:assets";
+import hero from "../../images/projects/go-stardog/hero.png";
+
+## Overview
+
+`go-stardog` is a Go library that allows developers to interact with Stardog. It provides a simple, intuitive interface that abstracts away many of the complexities of the Stardog HTTP API, making it easy for developers to get started with Stardog without needing to have detailed knowledge of the underlying API.
+
+<Image class="md:max-h-[720px] md:w-auto" src={hero} alt="go-stardog logo" />
+
+## Example Usage
+
+The setup and usage is fairly straightforward. Construct a new Stardog client, then use the various services on the client to access different parts of the Stardog API. For example:
+
+```go
+import "github.com/noahgorstein/go-stardog/stardog"
+
+func main() {
+
+  ctx := context.Background()
+
+  basicAuthTransport := stardog.BasicAuthTransport{
+    Username: "admin",
+    Password: "admin",
+  }
+
+  client, _ := stardog.NewClient("http://localhost:5820", basicAuthTransport.Client())
+
+  // list all users in the server
+  users, _, err := client.User.List(ctx)
+}
+```
+
+## About the API
+
+The services of a client divide the API into logical chunks and roughly correspond to structure of the [Stardog HTTP API documentation](https://stardog-union.github.io/http-docs/).
+
+For additional examples, checkout the `examples` directory in the [Github repository](https://github.com/noahgorstein/go-stardog/tree/main/examples).

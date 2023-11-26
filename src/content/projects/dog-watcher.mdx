@@ -1,0 +1,24 @@
+---
+title: "dog-watcher"
+description: "a TUI to processes in Stardog"
+repo: "dog-watcher"
+---
+
+import { Image } from "astro:assets";
+import gif from "../../images/projects/dog-watcher/demo.gif";
+
+## Overview
+
+`dog-watcher` is a TUI (textual user interace) for [managing processes in Stardog](https://docs.stardog.com/operating-stardog/server-administration/process-management).
+
+<Image
+  class="md:max-h-[720px] md:w-auto"
+  src={gif}
+  alt="A short demo of dog-watcher"
+/>
+
+At the time of writing this, the primary means of managing processes in the Stardog server is through the use of the `stardog-admin ps <list/kill/status>` [CLI commands](https://docs.stardog.com/stardog-admin-cli-reference/ps/). My main motivation in creating `dog-watcher` was to simplify the process of monitoring running processes in the Stardog server. Additionally, it allows for easy termination of processes and adjusting how often it refreshes the processes in its view.
+
+## Additional Info
+
+For additional reading about process management in Stardog, check out this [great blog post](https://www.stardog.com/labs/blog/unified-process-monitoring/) from Stardog Labs (Stardog's engineering blog).

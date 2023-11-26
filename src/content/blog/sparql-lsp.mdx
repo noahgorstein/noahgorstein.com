@@ -1,0 +1,96 @@
+---
+title: >
+  Integrating a SPARQL Language Server with Neovim's LSP Client
+description: "Steps to setup a SPARQL language server with Neovim's LSP Client"
+pubDate: "Oct 02 2022"
+---
+
+import { Image } from "astro:assets";
+import demo from "../../images/blog/sparql-lsp/sparql-neovim-main.png";
+
+These days, my editor of choice is [Neovim](https://neovim.io/). While I'm not frequently writing SPARQL queries at work like I used to, I found myself recently wondering if there was a documented SPARQL [LSP server configuration](https://github.com/neovim/nvim-lspconfig/blob/master/doc/server_configurations.md) to use with Neovim's native LSP client. There was not, so I attempted to leverage [Stardog's SPARQL language server](https://github.com/stardog-union/stardog-language-servers) to do just the thing and it worked pretty well!
+
+<Image src={demo} alt="Screenshot of the SPARQL LSP in action" />
+
+## Setup
+
+Below are the steps I followed to set this up. This guide assumes you are using [Neovim's native LSP client](https://neovim.io/doc/user/lsp.html) and have familiarity with the general setup for configuring the LSP client for different language servers.
+
+### 1. Install Stardog's SPARQL language server
+
+```bash
+npm install -g sparql-language-server
+```
+
+### 2.Configure your package manager to use your `nvim-lspconfig` checkout
+
+I installed the [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) plugin with my package manager, [lazy.nvim](https://github.com/folke/lazy.nvim), and so I configured lazy.nvim to use my local checkout of nvim-lspconfig in my `init.lua` like so:
+
+```lua title="init.lua"
+require("lazy").setup("plugins", {
+  dev = {
+    -- directory where you store your local plugin projects
+    path = "~/projects",
+	-- @type string[] plugins that match these patterns will use your local versions instead of being fetched from GitHub
+    patterns = {"nvim-lspconfig"}
+  },
+})
+```
+
+### 3. Create the SPARQL LSP Server Configuration
+
+In your nvim-lspconfig checkout, create a new file at `lua/lspconfig/server_configurations/sparql.lua`:
+
+    ```bash
+    touch lua/lspconfig/server_configurations/sparql.lua
+    ```
+
+Now define the SPARQL server configuration:
+
+    ```lua title="sparql.lua"
+    local util = require 'lspconfig.util'
+
+    local bin_name = 'sparql-language-server'
+    local cmd = { 'node', bin_name, '--stdio' }
+
+    return {
+    	default_config = {
+    		cmd = cmd,
+    		filetypes = { 'sparql', 'rq' },
+    		root_dir = util.find_git_ancestor or vim.fn.getcwd(),
+    		single_file_support = true
+    	}
+    }
+    ```
+
+    This tells the Neovim LSP client to attempt to use the SPARQL language server if the file has an extension of `sparql` or `rq`.
+
+### 4. Modify your Neovim config
+
+Add the language server setup to your `init.lua`, substituting your path to the executable `sparql-language-server` installed via `npm`.
+
+    ```lua title="init.lua"
+    require("lspconfig").sparql.setup {
+      cmd = { "node", os.getenv("NVM_BIN") .. "/sparql-language-server", "--stdio" },
+      capabilities=capabilities,
+      on_attach = on_attach
+    }
+    ```
+
+    For my `cmd`, since I use [nvm](https://github.com/nvm-sh/nvm) as my Node version manager, I have access to the `NVM_BIN` environment variable which as the variable name suggests, is just `nvm`'s installation directory.
+
+## Treesitter Syntax Highlighting (Optional)
+
+Optionally install the [SPARQL treesitter parser](https://github.com/BonaBeavis/tree-sitter-sparql) for Neovim to get syntax highlighting. In any buffer in normal mode enter `:TSInstall sparql`.
+
+## Demo
+
+Open an existing or new file with an `rq` or `sparql` extension and begin writing some SPARQL.
+
+import demoGif from "../../images/blog/sparql-lsp/sparql-neovim-demo.gif";
+
+<Image src={demoGif} alt="Demo of the SPARQL LSP in action" />
+
+## A Final Word
+
+That's it! I hope you've found this helpful. If you are in the semantics world, Stardog has a few other very useful language servers for SHACL, TRiG, and Turtle. If you're a Stardog user, there's also language servers for SMS (Stardog Mapping Syntax), SRS (Stardog Rules Syntax), and Stardog's GraphQL extensions. Check out the [repository](https://github.com/stardog-union/stardog-language-servers) on Github. The process should be roughly the same for integrating these.

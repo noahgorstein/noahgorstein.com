@@ -1,0 +1,32 @@
+---
+title: "guard-dog"
+description: "a TUI to manage users, roles, and permissions in Stardog"
+repo: "guard-dog"
+---
+
+import { Image } from "astro:assets";
+import hero from "../../images/projects/guard-dog/hero.png";
+import assigningPermissions from "../../images/projects/guard-dog/assigning-role-permission.png";
+
+## Overview
+
+`guard-dog` is a textual user interface (TUI) meant to make [security](https://docs.stardog.com/operating-stardog/security/managing-users-and-roles) in Stardog a bit more intuitive to manage from the command line.
+
+<Image class="md:max-h-[720px] md:w-auto" src={hero} alt="guard-dog layout" />
+
+## Features
+
+`guard-dog` currently supports:
+
+- viewing users, roles and their respective permissions
+- granting and revoking permissions from users and roles
+- assigning and unassigning users from/to roles
+- deleting users and roles
+- changing users' passwords
+- enabling and disabling users
+
+<Image
+  class="mt-8 md:max-h-[720px] md:w-auto"
+  src={assigningPermissions}
+  alt="guard-dog screenshot of assigning permissions to roles"
+/>

@@ -1,0 +1,69 @@
+---
+title: "jqp"
+description: "a TUI to experiment and build up jq queries"
+repo: "jqp"
+---
+
+import { Image } from "astro:assets";
+import monokaiLight from "../../images/projects/jqp/jqp-monokai-light.png";
+import githubDark from "../../images/projects/jqp/jqp-github-dark.png";
+
+`jqp` is a TUI (textual user interace) for crafting [`jq`](https://stedolan.github.io/jq) queries.
+
+## Overview
+
+My main goal in making `jqp` was to help myself and others learn `jq` syntax a bit better. I found that I often iterate on my `jq` queries prior to adding it to my scripts.
+
+The `jqp` UI is broken up into 3 main components.
+
+1. an input to enter your `jq` query
+2. a scrollable viewport to view your input
+3. a scrollable viewport to view your query's output
+
+`jqp` can read input via the `-f/--file` flag or via stdin which can be useful for exploring JSON API responses.
+
+```bash
+jqp --file data.json
+```
+
+```bash
+curl "https://dummyjson.com/products" | jqp
+```
+
+Keybindings are provided to both copy the query to your system clipboard and save the current query's output to a file.
+
+## Example Workflows
+
+`jqp` has been featured on Youtube on some developer-centric channels.
+
+<iframe
+  class="mb-12 aspect-video w-full"
+  src="https://www.youtube.com/embed/h_ZpixOgKDY?si=6G-8uYTFY4xsavDG&amp;clip=UgkxdtGsyRMt00E-50DMJDmeR1MVl0ZDWhZ3&amp;clipt=EMLHDBjavA0"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  allowfullscreen
+></iframe>
+
+<iframe
+  class="aspect-video w-full"
+  src="https://www.youtube.com/embed/tD60UhZc7zU?si=Fd5fBNddr2zxGwUV&amp;start=355"
+  title="YouTube video player"
+  frameborder="0"
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+  allowfullscreen
+></iframe>
+
+## Themes
+
+`jqp` has over [**40** themes](https://github.com/noahgorstein/jqp#themes) to pick from with options for both terminals with a light and dark background color.
+
+Below are 2 of my personal favorite light and dark themes - `monokai-light` and `github-dark`.
+
+### Monokai Light
+
+    <Image class="md:max-h-[20%] md:w-auto" src={monokaiLight} alt="jqp monokai light theme" />
+
+### Github Dark
+
+    <Image class="md:max-h-[20%] md:w-auto" src={githubDark} alt="jqp github dark theme" />

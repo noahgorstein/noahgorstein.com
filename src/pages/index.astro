@@ -1,0 +1,46 @@
+---
+import Simple from "../layouts/Simple.astro";
+import meImage from "../../public/me-berlin.png";
+import { Image } from "astro:assets";
+import { getCollection } from "astro:content";
+import FormattedDate from "../components/FormattedDate.astro";
+
+const posts = (await getCollection("blog")).sort(
+  (a, b) => a.data.pubDate.valueOf() - b.data.pubDate.valueOf()
+);
+---
+
+<Simple>
+  <main class="px-16 py-4">
+    <section class="grid grid-cols-12">
+      <div class="col-span-2"></div>
+      <div class="col-span-8 flex flex-col items-center p-4">
+        <Image class="mt-4" src={meImage} alt="Me in Berlin" />
+        <p class="mt-4 text-center text-4xl">
+          Hey! I'm <span class="font-bold text-pink">Noah</span>, a Software
+          Engineer based in Washington, DC.
+        </p>
+      </div>
+      <div class="col-span-2"></div>
+    </section>
+    <section class="mt-8">
+      <h2 class="text-xl">Recent Posts</h2>
+      <ul class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+        {
+          posts.map((post) => (
+            <li class="group rounded-xl border-2 border-foreground transition-colors hover:border-emerald">
+              <a class="flex flex-col px-2 py-4" href={`/blog/${post.slug}/`}>
+                <span class="font-bold group-hover:underline">
+                  {post.data.title}
+                </span>
+                <p class="text-sm italic opacity-50">
+                  <FormattedDate date={post.data.pubDate} />
+                </p>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
+  </main>
+</Simple>
