@@ -7,10 +7,11 @@ repo: "jqp"
 import { Image } from "astro:assets";
 import monokaiLight from "../../images/projects/jqp/jqp-monokai-light.png";
 import githubDark from "../../images/projects/jqp/jqp-github-dark.png";
-
-`jqp` is a TUI (textual user interace) for crafting [`jq`](https://stedolan.github.io/jq) queries.
+import demo from "../../images/projects/jqp/jqp-demo.gif";
 
 ## Overview
+
+`jqp` is a TUI (textual user interace) for crafting [`jq`](https://stedolan.github.io/jq) queries.
 
 My main goal in making `jqp` was to help myself and others learn `jq` syntax a bit better. I found that I often iterate on my `jq` queries prior to adding it to my scripts.
 
@@ -20,11 +21,15 @@ The `jqp` UI is broken up into 3 main components.
 2. a scrollable viewport to view your input
 3. a scrollable viewport to view your query's output
 
+<Image class="my-4" src={demo} alt="short demo of jqp" />
+
 `jqp` can read input via the `-f/--file` flag or via stdin which can be useful for exploring JSON API responses.
 
 ```bash
 jqp --file data.json
 ```
+
+<div class="my-4"></div>
 
 ```bash
 curl "https://dummyjson.com/products" | jqp
@@ -38,7 +43,7 @@ Keybindings are provided to both copy the query to your system clipboard and sav
 
 <iframe
   class="mb-12 aspect-video w-full"
-  src="https://www.youtube.com/embed/h_ZpixOgKDY?si=6G-8uYTFY4xsavDG&amp;clip=UgkxdtGsyRMt00E-50DMJDmeR1MVl0ZDWhZ3&amp;clipt=EMLHDBjavA0"
+  src="https://www.youtube.com/embed/h_ZpixOgKDY?si=hTmeQKnTVXt9XPuF&amp;clip=UgkxxuL54u59iw_O1ofXJdVc0TZnVP9ddwau&amp;clipt=EJrNCxj6oQ8"
   title="YouTube video player"
   frameborder="0"
   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
