@@ -1,6 +1,6 @@
 # noahgorstein.com
 
-My personal portfolio website.
+My personal portfolio website. Built with Astro 🚀.
 
 ## Commands
 
