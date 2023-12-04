@@ -3,7 +3,13 @@ import type { MarkdownHeading } from "astro";
 import TableOfContentsHeading from "../components/TableOfContentsHeading.astro";
 import GithubRepoLink from "../components/GithubRepoLink.astro";
 
-const { headings, class: className, repo } = Astro.props;
+const {
+  headings,
+  class: className,
+  id = "toc",
+  repo,
+  showBorder = true,
+} = Astro.props;
 const toc = buildToc(headings);
 
 export type Heading = {
@@ -31,9 +37,14 @@ function buildToc(headings: [MarkdownHeading]) {
 }
 ---
 
-<nav class:list={["toc", className]}>
+<nav id={id} class:list={["toc", className]}>
   <span class="text-md font-bold">Contents</span>
-  <ul class="mt-2 block list-inside border-l-[1px] pl-2">
+  <ul
+    class:list={[
+      "mt-2 block list-inside list-none pl-2",
+      { "border-l-[1px]": showBorder },
+    ]}
+  >
     {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
   </ul>
   {repo && <GithubRepoLink class="mt-4 pl-2" repo={repo} />}

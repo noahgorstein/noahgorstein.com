@@ -21,11 +21,14 @@ const projects = await getCollection("projects");
     <Header />
     <main class="flex min-h-screen flex-col items-center p-8">
       <h2 class="text-xl">Projects</h2>
-      <section>
-        <ul class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
+      <section class="grid grid-cols-12">
+        <div class="md:col-span-2"></div>
+        <ul
+          class="col-span-12 mt-4 flex flex-wrap items-stretch justify-between gap-8 md:col-span-8 md:grid-cols-3"
+        >
           {
             projects.map((project) => (
-              <li class="group flex flex-col gap-8 rounded-xl border-2 border-foreground px-4 py-4 transition-colors hover:border-emerald md:col-span-1">
+              <li class="group flex basis-full flex-col gap-8 rounded-xl border-2 border-foreground px-4 py-4 transition-colors hover:border-emerald md:col-span-1 md:basis-[calc(50%-3rem)] lg:basis-[calc(33.33%-3rem)]">
                 <a
                   class="flex flex-col gap-4"
                   href={`/projects/${project.slug}`}
@@ -33,7 +36,7 @@ const projects = await getCollection("projects");
                   <span class="mt-4 text-lg font-bold decoration-2 underline-offset-4 group-hover:underline">
                     {project.data.title}
                   </span>
-                  <p class="h-6 text-sm group-hover:underline">
+                  <p class="text-sm group-hover:underline">
                     {project.data.description}{" "}
                   </p>
                 </a>
@@ -42,6 +45,7 @@ const projects = await getCollection("projects");
             ))
           }
         </ul>
+        <div class="md:col-span-2"></div>
       </section>
     </main>
     <Footer />

@@ -11,19 +11,19 @@ const posts = (await getCollection("blog")).sort(
 ---
 
 <Simple>
-  <main class="px-16 py-4">
+  <main class="flex flex-col items-center px-16 py-4">
     <section class="grid grid-cols-12">
       <div class="col-span-2"></div>
       <div class="col-span-8 flex flex-col items-center p-4">
         <Image class="mt-4" src={meImage} alt="Me in Berlin" />
-        <p class="mt-4 text-center text-4xl">
+        <p class="mt-4 text-center text-3xl lg:w-1/2">
           Hey! I'm <span class="font-bold text-pink">Noah</span>, a Software
           Engineer based in Washington, DC.
         </p>
       </div>
       <div class="col-span-2"></div>
     </section>
-    <section class="mt-8">
+    <section class="mt-8 lg:w-2/3">
       <h2 class="text-xl">Recent Posts</h2>
       <ul class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
         {

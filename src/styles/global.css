@@ -24,6 +24,10 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background: rgb(var(--color-background));
   color: rgb(var(--color-foreground));
@@ -33,17 +37,6 @@ a {
   border-color: transparent;
 }
 
-.mdx ul,
-ol,
-li {
-  list-style: revert;
-  list-style-position: inside;
-}
-
-ul li p,
-ol li p {
-  display: inline;
-}
 
 @font-face {
   font-family: "Wotfard";

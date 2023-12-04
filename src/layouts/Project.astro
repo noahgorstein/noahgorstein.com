@@ -23,22 +23,29 @@ const { headings } = Astro.props;
 
   <body>
     <Header />
-    <main class="grid grid-cols-12 gap-4 p-1">
-      <div class="md:col-span-2"></div>
-      <article class="mdx col-span-full px-4 md:col-span-8">
-        <div>
-          <h2 class="mb-2 text-3xl">{title}</h2>
-          <hr />
-        </div>
-        <slot class="text-center" />
-      </article>
-      <aside class="hidden pr-4 md:col-span-2 md:block">
-        <TableOfContents
-          class="sticky top-0 pl-2 pt-8"
-          headings={headings}
-          repo={repo}
-        />
-      </aside>
+    <main class="flex flex-col items-center">
+      <section class="grid grid-cols-12 gap-4 p-1">
+        <div class="xl:col-span-3"></div>
+        <article class="mdx col-span-full px-4 xl:col-span-6">
+          <div>
+            <h2 class="mb-2 text-3xl">{title}</h2>
+            <hr />
+            <TableOfContents
+              class="my-6 rounded border-[1px] p-4 xl:hidden"
+              showBorder={false}
+              headings={headings}
+            />
+          </div>
+          <slot class="text-center" />
+        </article>
+        <aside class="hidden pr-4 md:col-span-2 md:block">
+          <TableOfContents
+            class="sticky top-0 pl-2 pt-8"
+            headings={headings}
+            repo={repo}
+          />
+        </aside>
+      </section>
     </main>
 
     <Footer />

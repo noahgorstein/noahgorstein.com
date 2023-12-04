@@ -24,8 +24,10 @@ const posts = (await getCollection("blog")).sort(
     <main class="mx-auto flex min-h-screen flex-col items-center">
       <h2 class="text-xl">Posts</h2>
       <section class="grid grid-cols-12">
-        <div class="col-span-3"></div>
-        <ul class="col-span-6 mt-4 items-center px-8 text-sm">
+        <div class="md:col-span-3"></div>
+        <ul
+          class="col-span-12 mt-4 items-center px-8 text-sm md:col-span-6 md:text-lg"
+        >
           {
             posts.map((post) => (
               <li class="group hover:border-emerald">
@@ -35,7 +37,7 @@ const posts = (await getCollection("blog")).sort(
                 >
                   <p class="group-hover:underline">{post.data.title}</p>
                   <FormattedDate
-                    class="whitespace-nowrap text-sm italic opacity-50"
+                    class="whitespace-nowrap text-sm italic opacity-50 md:text-lg"
                     date={post.data.pubDate}
                   />
                 </a>
@@ -43,7 +45,7 @@ const posts = (await getCollection("blog")).sort(
             ))
           }
         </ul>
-        <div class="col-span-3"></div>
+        <div class="md:col-span-3"></div>
       </section>
     </main>
     <Footer />
