@@ -2,8 +2,8 @@
 import BaseHead from "../../components/BaseHead.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
-import GithubRepoLink from "../../components/GithubRepoLink.astro";
-import { SITE_TITLE, SITE_DESCRIPTION } from "../../consts";
+import GithubRepoLink from "../../components/GithubRepoLink";
+import { SITE_TITLE } from "../../consts";
 import { getCollection } from "astro:content";
 
 const projects = await getCollection("projects");
@@ -40,7 +40,7 @@ const projects = await getCollection("projects");
                     {project.data.description}{" "}
                   </p>
                 </a>
-                <GithubRepoLink repo={project.data.title} />
+                <GithubRepoLink client:idle repo={project.data.title} />
               </li>
             ))
           }
