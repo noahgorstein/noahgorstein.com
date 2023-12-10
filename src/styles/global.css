@@ -37,6 +37,10 @@ a {
   border-color: transparent;
 }
 
+.anchor-icon {
+  @apply inline-block pl-4 text-foreground hover:text-emerald;
+}
+
 @font-face {
   font-family: "Wotfard";
   src: url("/fonts/wotfard-light-webfont.woff2") format("woff2");
