@@ -55,7 +55,11 @@ export default defineConfig({
     },
   },
   integrations: [
-    expressiveCode(),
+    expressiveCode({
+      themes: ["github-light", "github-dark"],
+      useDarkModeMediaQuery: false,
+      plugins: [{ baseStyles: `margin: 2rem 0px;` }],
+    }),
     mdx(),
     sitemap(),
     react(),
