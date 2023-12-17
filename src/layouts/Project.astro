@@ -40,6 +40,7 @@ const { headings } = Astro.props;
         </article>
         <aside class="hidden pr-4 md:col-span-2 md:block">
           <TableOfContents
+            id="side-toc"
             class="sticky top-0 pl-2 pt-8"
             headings={headings}
             repo={repo}
@@ -53,13 +54,15 @@ const { headings } = Astro.props;
       const setCurrent: IntersectionObserverCallback = (entries) => {
         for (let entry of entries) {
           const { id } = entry.target;
-          const tocHeadingEl = document.querySelector(`.toc a[href="#${id}"]`);
+          const tocHeadingEl = document.querySelector(
+            `#side-toc a[href="#${id}"]`
+          );
           if (!tocHeadingEl) {
             return;
           }
           if (entry.isIntersecting) {
             document
-              .querySelectorAll(".toc a")
+              .querySelectorAll("#side-toc a")
               .forEach((e) => e.classList.remove("active"));
             tocHeadingEl.classList.add("active");
           }
@@ -67,7 +70,7 @@ const { headings } = Astro.props;
       };
 
       const observerOption: IntersectionObserverInit = {
-        rootMargin: "0px 0px -66%",
+        rootMargin: "-50% 0px",
         threshold: 0,
       };
       const headingObserver = new IntersectionObserver(
