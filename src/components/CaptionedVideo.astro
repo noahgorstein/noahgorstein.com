@@ -1,0 +1,16 @@
+---
+export interface CaptionedVideoProps {
+  src: string;
+  type: string;
+  caption: string;
+}
+
+const { src, type, caption } = Astro.props;
+---
+
+<div class="flex flex-col gap-2 text-center">
+  <video controls="" autoplay="" transition:persist>
+    <source src={src} type={type} />
+  </video>
+  <p>{caption}</p>
+</div>

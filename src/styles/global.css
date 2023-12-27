@@ -9,6 +9,9 @@
     --color-grey: 203 213 225; /* slate 300 */
     --color-emerald: 16 185 129; /* emerald 500 */
     --color-pink: 157 23 77; /* pink 800 */
+    --color-blue: 186 230 253; /* sky 200 */
+    --color-yellow: 253 230 138; /* amber 200 */
+    --color-red: 254 202 202; /* red 200 */
     --color-foreground: var(--color-black);
     --color-background: var(--color-white);
   }
@@ -19,6 +22,9 @@
     --color-grey: 51 65 85; /* slate 700 */
     --color-emerald: 110 231 183; /* emerald 300 */
     --color-pink: 249 168 212; /* pink 300 */
+    --color-blue: 2 132 199; /* sky 600 */
+    --color-yellow: 217, 119, 6; /* amber 600 */
+    --color-red: 220 38 38; /* red 600 */
     --color-foreground: var(--color-white);
     --color-background: var(--color-black);
   }

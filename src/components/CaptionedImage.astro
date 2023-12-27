@@ -1,0 +1,17 @@
+---
+import { Image } from "astro:assets";
+import type { HTMLAttributes } from "astro/types";
+
+export interface CaptionedImageProps extends HTMLAttributes<"img"> {
+  src: string;
+  alt: string;
+  caption: string;
+}
+
+const { src, alt, caption } = Astro.props;
+---
+
+<div class="my-8 flex flex-col gap-2 text-center">
+  <Image class="m-0" src={src} alt={alt} />
+  <p>{caption}</p>
+</div>
