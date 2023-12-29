@@ -24,20 +24,20 @@ const posts = (await getCollection("blog")).sort(
     <main class="mx-auto flex min-h-screen flex-col items-center">
       <h2 class="text-xl">Posts</h2>
       <section class="grid grid-cols-12">
-        <div class="md:col-span-3"></div>
-        <ul
-          class="col-span-12 mt-4 items-center px-8 text-sm md:col-span-6 md:text-lg"
-        >
+        <div class="md:col-span-2"></div>
+        <ul class="col-span-12 mt-4 items-center px-8 md:col-span-8">
           {
             posts.map((post) => (
-              <li class="group hover:border-emerald">
+              <li class="group mb-2 py-2">
                 <a
-                  class="flex flex-row items-center gap-8"
+                  class="flex flex-col md:flex-row md:items-center md:justify-between md:gap-8"
                   href={`/blog/${post.slug}`}
                 >
-                  <p class="group-hover:underline">{post.data.title}</p>
+                  <p class="font-bold group-hover:underline">
+                    {post.data.title}
+                  </p>
                   <FormattedDate
-                    class="whitespace-nowrap text-sm italic opacity-50 md:text-lg"
+                    class="whitespace-nowrap text-sm opacity-50"
                     date={post.data.pubDate}
                   />
                 </a>
@@ -45,7 +45,7 @@ const posts = (await getCollection("blog")).sort(
             ))
           }
         </ul>
-        <div class="md:col-span-3"></div>
+        <div class="md:col-span-2"></div>
       </section>
     </main>
     <Footer />
