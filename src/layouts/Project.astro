@@ -11,14 +11,18 @@ export interface Props {
   headings: MarkdownHeading[];
 }
 
-const { title, description, repo } = Astro.props.data;
+const { title, description, repo, ogImage } = Astro.props.data;
 
 const { headings } = Astro.props;
 ---
 
 <html lang="en">
   <head>
-    <BaseHead title={title} description={description || ""} />
+    <BaseHead
+      title={`${title} | Noah Gorstein`}
+      description={description || ""}
+      image={ogImage}
+    />
   </head>
 
   <body>
