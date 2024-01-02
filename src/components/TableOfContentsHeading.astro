@@ -3,20 +3,26 @@ import type { Heading } from "./TableOfContents.astro";
 
 interface Props {
   heading: Heading;
+  firstItem: boolean;
+  lastItem: boolean;
 }
 
-const { heading } = Astro.props;
+const { heading, firstItem, lastItem } = Astro.props;
 ---
 
-<li>
+<li class:list={[{ "pb-2": !lastItem }, { "pt-2": firstItem }]}>
   <a href={"#" + heading.slug} class="text-sm hover:underline">
     {heading.text}
   </a>
   {
     heading.subheadings.length > 0 && (
-      <ul class="list-none px-4 py-0">
-        {heading.subheadings.map((subheading) => (
-          <Astro.self heading={subheading} />
+      <ul class:list={["list-none px-4 py-0"]}>
+        {heading.subheadings.map((subheading, index) => (
+          <Astro.self
+            heading={subheading}
+            firstItem={index === 0}
+            lastItem={index === heading.subheadings.length - 1}
+          />
         ))}
       </ul>
     )

@@ -1,6 +1,6 @@
 ---
-title: Visualizing SPARQL Query Plans with Python and Textualize 
-description: Building a TUI to visualize SPARQL query plans in Stardog 
+title: Visualizing SPARQL Query Plans with Python and Textualize
+description: Building a TUI to visualize SPARQL query plans in Stardog
 ogImage: "/ogImages/blog/profiler_tui.png"
 pubDate: "Dec 27 2023"
 ---
@@ -11,24 +11,29 @@ import profilerTui from "../../images/blog/visualizing-sparql-query-plans/profil
 import highlightedTuiPanels from "../../images/blog/visualizing-sparql-query-plans/panels.png";
 import sumChildrenWallTime from "../../images/blog/visualizing-sparql-query-plans/sum_children_wall_time.mp4";
 import switchTabs from "../../images/blog/visualizing-sparql-query-plans/switch_tabs.mp4";
-import Callout from "../../components/Callout.astro"
-import CaptionedVideo from "../../components/CaptionedVideo.astro"
-import CaptionedImage from "../../components/CaptionedImage.astro"
+import planNode from "../../images/blog/visualizing-sparql-query-plans/plan_node.png";
+import Callout from "../../components/Callout.astro";
+import CaptionedVideo from "../../components/CaptionedVideo.astro";
+import CaptionedImage from "../../components/CaptionedImage.astro";
 
+Welcome to my little journey of visualizing profiled SPARQL query plans using Python and Textualize! In this blog post, I'll walk you through my experience builting a Textual User Interface (TUI) to bring profiled SPARQL query plans from Stardog to life. But before we dive into the details, let me give you a sneak peek of the final product:
 
-Welcome to my little journey of visualizing profiled SPARQL query plans using Python and Textualize! In this blog post, I'll walk you through my experience builting a Textual User Interface (TUI) to bring profiled SPARQL query plans to life. But before we dive into the details, let me give you a sneak peek of the final product:
-
-<CaptionedVideo src={profilerTuiDemo} type="video/mp4" caption="A sneak peek of what I built" />
+<CaptionedVideo
+  src={profilerTuiDemo}
+  type="video/mp4"
+  caption="A sneak peek of what I built"
+/>
 
 <Callout intent="info">
-All the source code for the project can be found [on Github](https://github.com/noahgorstein/stardog_sparql_profiler_tui).
+  All the source code for the project can be found [on
+  Github](https://github.com/noahgorstein/stardog_sparql_profiler_tui).
 </Callout>
 
 ## The Challenge of Reading Profiled SPARQL Query Plans in Stardog
 
-I have been working at [Stardog](https://docs.stardog.com/) now for almost 4 years and while I don't work on the platforms internals (e.g. the query engine), I have had to interact with query plans while writing SPARQL queries against the platform to optimize my inefficient queries 😊. Stardog has always been able to produce and surface SPARQL query plans to users and semi-recently added a capability to add profiling information to the query plan to help users reduce and eliminate bottlenecks in their queries. This capability is exposed as part of Stardog's query plan service and like many other features is exposed via an [HTTP endpoint](https://stardog-union.github.io/http-docs/#tag/SPARQL/operation/explainQueryPost), [Stardog's CLI](https://docs.stardog.com/stardog-cli-reference/query/query-explain), and [Stardog Studio](https://www.stardog.com/studio/) (an IDE-like experience for interacting with Stardog). This is all good and well, except that these plans can get pretty verbose and a bit unwieldly to visually inspect.
+I have been working at [Stardog](https://docs.stardog.com/) now for almost 4 years and while I don't work on the platforms internals (e.g. the query engine), I have had to interact with query plans while writing SPARQL queries against the platform to optimize my inefficient queries 😊. Stardog has always been able to produce and surface SPARQL query plans to users and semi-recently added a capability to add profiling information to the query plan to help users reduce and eliminate bottlenecks in their queries. This capability is exposed as part of Stardog's query plan service and like many other features is exposed via an [HTTP endpoint](https://stardog-union.github.io/http-docs/#tag/SPARQL/operation/explainQueryPost), [Stardog's CLI](https://docs.stardog.com/stardog-cli-reference/query/query-explain), and [Stardog Studio](https://www.stardog.com/studio/) (an IDE-like experience for interacting with Stardog). This is all good and well, except that the output from the profiler can get pretty verbose and a bit unwieldly to visually inspect.
 
-For example, here's the abbreviated CLI output from a profiled query. 
+For example, here's the abbreviated CLI output from a profiled query.
 
 ```text title="cli_output.txt"
 Profiling results:
@@ -66,10 +71,19 @@ Distinct [#17.7M], memory: {total=1.5G (96.1%)}, results: 18.4M, wall time: 1598
                   `─ Scan[PSOC](?article1, <http://swrc.ontoware.org/ontology#journal>, ?journal) [#208K], results: 208K (with gaps), wall time: 128 ms (0.2%)
 ```
 
-All of those access points mentioned will return the profiled query plan in plain text containing information about the profiled plan, the query profiled, and a tree representing the query plan with profiler information about individual nodes. While the text format is *packed* with useful information, it's almost 100 lines of plain text that is somewhat unstructured and hard to parse programmatically. Wouldn't it be great if we could get the profiled query in some sort of a structured format like JSON so we could potentially make a tool to more easily inspect the plans? Well it turns out the HTTP endpoint can actually return the plan in JSON! 
+The Stardog CLI and Stardog Studio by will return the profiled query plan in plain text containing information about the profiled plan, the query profiled, and a tree representing the query plan with profiler information about individual nodes.
 
+<Callout intent="info">
 
-```json
+From the [Stardog Docs](https://docs.stardog.com/operating-stardog/database-administration/managing-query-performance#query-plan-syntax):
+
+> The plan is arranged in a hierarchical, tree-like structure which grows left to right. The nodes, called operators, represent units of data processing during evaluation. They correspond to evaluations of graph patterns or solution modifiers as defined in [SPARQL 1.1 specification](https://www.w3.org/TR/sparql11-query/#sparqlDefinition). All operators can be regarded as functions which may take some data as input and produce some data as output. All input and output data is represented as streams of [solutions](https://www.w3.org/TR/sparql11-query/#sparqlSolutions), that is, sets of bindings of the form `x -> value` where `x` is a variable used in the query and value is some RDF term (IRI, blank node, or literal). Examples of operators include scans, joins, filters, unions, etc.
+
+</Callout>
+
+While the text format is _packed_ with useful information, it is unstructured and hard to parse programmatically. The larger the plan is, the harder these get to visually inspect as well. Wouldn't it be great if we could get the profiled query in some sort of a structured format like JSON so we could potentially make a tool to more easily inspect the plans? Well it turns out the HTTP endpoint can actually return the plan in JSON in addition to plain text!
+
+```json title="Profiler JSON Output"
 {
   "prefixes": {...},
   "profiler": {
@@ -97,27 +111,28 @@ All of those access points mentioned will return the profiled query plan in plai
 
 ## Introducing Textualize
 
-For the past couple years, I've had a lot of fun building textual user interfaces (TUIs) like [jqp](/projects/jqp) and [guard-dog](/projects/guard-dog). 
-All of my TUIs to date have been built using Go leveraging [Charmbracelet's bubbletea framework](https://github.com/charmbracelet/bubbletea) but I've been using a quite a bit of Python at work and heard about [Textualize](https://www.textualize.io/), which is a Python library for building TUIs and thought I'd give it a shot. 
+For the past couple years, I've had a lot of fun building TUIs like [jqp](/projects/jqp) and [guard-dog](/projects/guard-dog).
+All of my TUIs to date have been built using Go leveraging [Charmbracelet's bubbletea framework](https://github.com/charmbracelet/bubbletea), but I've been using quite a bit of Python at work and was looking for an excuse to leverage it in additional project. I'd heard interesting things about [Textualize](https://www.textualize.io/), which is a Python library for building TUIs and thought I'd give it a shot in my attempt to better visualize profiled Stardog query plans.
 
 ### "Rapid Application Development"
 
-Textualize positions itself as a "Rapid Application Development" framework - a point that really resonated with me during the creation of my SPARQL profiler TUI. While there was an initial learning curve grasping Textualize's framework, once I understood the main concepts, the experience was really remarkable. Working within Python and employing [Textual's CSS-like styles](https://textual.textualize.io/guide/CSS/) proved to be a real delight. While I hold deep admiration for bubbletea (and everything the [Charmbracelet](https://charm.sh/) team makes) in my previous TUI endeavors, Textualize not only provides an exceptional developer experience but also capitalizes on Python's dynamic nature making getting started a breeze. This became especially advantageous when dealing with sizable JSON payloads representing profiled SPARQL query plans. While achieving similar results in Go is feasible I'm sure, I found Textualize enabled me to rapidly prototype and implement a functional solution within just a couple of days.
+Textualize positions itself as a _"Rapid Application Development"_ framework - a point that really resonated with me during the creation of my SPARQL profiler TUI. While there was an initial learning curve grasping Textualize's framework, once I understood the main concepts, the experience was really remarkable. Working within Python and employing [Textual's CSS-like styles](https://textual.textualize.io/guide/CSS/) proved to be a real delight. While I hold deep admiration for bubbletea (and everything the [Charmbracelet](https://charm.sh/) team makes) in my previous TUI endeavors, Textualize not only provides an exceptional developer experience but just being able use Python is a big plus for prototyping (at least for me). This became especially advantageous when dealing with sizable JSON payloads representing profiled SPARQL query plans. While achieving similar results in Go is feasible I'm sure, I found Textualize enabled me to rapidly prototype and implement a functional solution over a weekend of hacking.
 
 ## What I Built
 
-I developed a SPARQL Profiler Text User Interface (TUI) to enhance the understanding and optimization of SPARQL query plans produced by Stardog. The TUI encompasses various features, each contributing to a detailed analysis of query execution. Explore the sections below to understand the key components and functionalities:
+I developed a SPARQL Profiler TUI to make it easier to inspect and analyze the SPARQL query plans produced by Stardog. I tried to take _all_ that really useful information returned by Stardog and organize it in more navigable and intuitive way.
 
-<CaptionedImage 
+<CaptionedImage
   src={profilerTui}
   alt="Screenshot of SPARQL Profiler TUI"
   caption="The TUI offers users a structured and navigable view of the profiled query plan's hierarchy."
 />
 
+See the high-level features of the TUI in the sections below.
 
 ### CLI Entrypoint
 
-I quickly constructed a CLI using [click](https://click.palletsprojects.com/) in order to take input from the user to communicate with their Stardog server and launch the TUI. This is the entrypoint. Below is the usage of the CLI command:
+I quickly constructed a CLI using [click](https://click.palletsprojects.com/) in order to take input from the user to communicate with their Stardog server and launch the TUI. This is the entrypoint. Below is the usage of the CLI:
 
 ```text
 ❯ sparql-profiler -h
@@ -146,7 +161,6 @@ Options:
   -h, --help                 Show this message and exit.
 ```
 
-
 ### Foldable Tree-Like User Interface
 
 The heart of the profiler TUI is an intuitive, foldable tree-like user interface. Leveraging Textualize's powerful [tree widget](https://textual.textualize.io/widgets/tree/), I created a visual representation of the SPARQL query plan. This interface offers users a structured and navigable view of the plan's hierarchy.
@@ -174,7 +188,7 @@ class PlanNode:
 
 class PlanNodeTree(Tree[PlanNode]):
     """Subclassing Textual's Tree widget
-    - `PlanNode` is my custom data type to store info about 
+    - `PlanNode` is my custom data type to store info about
     nodes/plan operators in a query plan
     """
     def __init__(self, query_plan: dict, namespaces: dict, *args, **kwargs) -> None:
@@ -221,19 +235,28 @@ def build_tree(tree_node: TreeNode | PlanNodeTree, plan_node: PlanNode):
 ```
 
 <Callout intent="info">
-See the full code for the [custom widget on Github](https://github.com/noahgorstein/stardog_sparql_profiler_tui/blob/main/widgets/plan_tree.py).
+  See the full code for the [custom widget on
+  Github](https://github.com/noahgorstein/stardog_sparql_profiler_tui/blob/main/widgets/plan_tree.py).
 </Callout>
+
+#### Plan Tree Nodes
 
 Each node in the tree provides essential information for debugging query performance:
 
-- The number of intermediate query results generated by each operator.
-- The cardinality estimations (the numbers in square brackets) - an estimate of the number of results actually generated.
-<Callout intent="info">
-A common cause of suboptimal query plans is cardinality mis-estimations, i.e. when the number of results that the optimizer thought an operator would generate and the actual number of results are several orders of magnitude apart.
-</Callout>
-- Wall time for each plan operator, along with the percentage of wall time used. To provide a comprehensive view, the tool dynamically calculates and displays the total wall time of a node's children when a parent node is folded.
+<CaptionedImage src={planNode} alt="Screenshot of node in tree" />
 
-Here's a snippet from the [source code](https://github.com/noahgorstein/stardog_sparql_profiler_tui/blob/main/widgets/plan_tree.py#L10C1-L20C22) showcasing the wall time calculation:
+- **Cardinality Estimations**: An estimate of the number of results actually generated. These are contained in square brackets `[]` - the same way Stardog displays them in query plans.
+  <Callout intent="info">
+    A common cause of suboptimal query plans is cardinality mis-estimations,
+    i.e. when the number of results that the optimizer thought an operator would
+    generate and the actual number of results are several orders of magnitude
+    apart.
+  </Callout>
+- **Memory**: The amount of allocated managed memory used by a node/plan operator. This is only reported for [pipeline-breaking node/plan operators](https://docs.stardog.com/operating-stardog/database-administration/managing-query-performance#pipelining-and-pipeline-breakers) which materialize intermediate results in memory.
+- **Intermediate Number of Results**: The number of intermediate query results generated by each node/ plan operator. The profiler detects when some part of the node/plan operator’s output is [skipped](https://docs.stardog.com/operating-stardog/database-administration/managing-query-performance#skipping-intermediate-results) over. In this case, "with gaps" is appended to the results.
+- **Wall time for each plan operator** - The time spent on the server evaluating the node/plan operator. The percentage the plan operator uses of the total wall time is also displayed next to the amount of time in parentheses `()`. To provide a comprehensive view of wall time when folding section of the tree, the TUI dynamically calculates and displays the total wall time of a node's children when a parent node is folded.
+
+Here's a snippet from the [source code](https://github.com/noahgorstein/stardog_sparql_profiler_tui/blob/main/widgets/plan_tree.py#L10C1-L20C22) showcasing the wall time calculation. This is fairly straightward to do in Python.
 
 ```python
 def sum_wall_time(node: "PlanNode") -> int:
@@ -249,34 +272,34 @@ def sum_wall_time(node: "PlanNode") -> int:
   return total_time
 ```
 
-<CaptionedVideo 
-  src={sumChildrenWallTime} 
+<CaptionedVideo
+  src={sumChildrenWallTime}
   type="video/mp4"
-  caption="Upon folding a parent node, the tool dynamically calculates and displays the wall time of the plan node/operator's children on the parent node's label."
-  />
-
+  caption="Upon folding a parent node, the TUI calculates and displays the wall time of the plan node/operator's children on the parent node's label."
+/>
 
 ### Color-Coded Output for Key Information
 
 To enhance the interpretability of the query plan, I color-coded the label for each node/plan operator. By leveraging [Rich](https://rich.readthedocs.io/en/latest/) (also from Textualize), I applied distinct colors and styles to various elements in the tree view. This approach helps users quickly identify and understand key aspects such as memory usage, cardinality estimations, and more.
 
-Moreover, I incorporated a visual indicator (💥) to highlight nodes that serve as [pipeline breakers](https://docs.stardog.com/operating-stardog/database-administration/managing-query-performance#pipelining-and-pipeline-breakers). Identifying these pipeline breakers is crucial for optimizing query performance, as they can have significant implications, often related to memory pressure.
+Moreover, I prepended a visual indicator (💥) to a node/plan operators label to highlight nodes that serve as [pipeline breakers](https://docs.stardog.com/operating-stardog/database-administration/managing-query-performance#pipelining-and-pipeline-breakers). Identifying these pipeline breakers is crucial for optimizing query performance, as they can have significant implications, often related to memory pressure.
 
 <Callout intent="info"> 
 From the [Stardog Docs](https://docs.stardog.com/operating-stardog/database-administration/managing-query-performance#pipelining-and-pipeline-breakers):
 
-"Not all operators can produce output solutions as soon as they get first input solutions from their children nodes. Some need to accumulate intermediate results before sending output. Such operators are called pipeline breakers, and they are often the culprits for performance problems, typically resulting from memory pressure. It is important to be able to spot them in the plan since they can suggest either: a) a way to re-formulate the query to help the planner, or b) a way to make the query more precise by specifying extra constants where they matter."
+> Not all operators can produce output solutions as soon as they get first input solutions from their children nodes. Some need to accumulate intermediate results before sending output. Such operators are called pipeline breakers, and they are often the culprits for performance problems, typically resulting from memory pressure. It is important to be able to spot them in the plan since they can suggest either: a) a way to re-formulate the query to help the planner, or b) a way to make the query more precise by specifying extra constants where they matter.
+
 </Callout>
 
 ### Tabs to Switch Between Query and Profiled Plan
 
-It can be quite nice to view the original query you profiled with the query plan. Once again, I was able to leverage Textual's built in widgets to accomplish this. Textual has a [Tabbed Content](https://textual.textualize.io/widgets/tabbed_content/) widget which allows you switch between mutually exclusive content panes via a row of tabs. You can actually click on the tabs to switch between tabs or use the keyboard shortcuts displayed in the footer to do so.
+It can be useful to view the original query you profiled with the query plan. Once again, I was able to leverage Textual's built in widgets to accomplish this. Textual has a [Tabbed Content](https://textual.textualize.io/widgets/tabbed_content/) widget which allows you switch between content panes via a row of tabs. You can actually click on the tabs to switch between tabs or use the keyboard shortcuts displayed in the footer to do so.
 
 <video class="mb-2" controls="" autoplay="" transition:persist>
   <source src={switchTabs} type="video/mp4" />
 </video>
 
-And hey, let's talk about the [footer](https://textual.textualize.io/widgets/footer/), yet another built-in widget. It's like the control center for all your Textual bindings, neatly displaying all the bindings you've set up in your app. All you've got to do to setup bindings is utilize the ["magic" `BINDINGS` attribute](https://textual.textualize.io/guide/input/#bindings) in your Textual `App` and/or widget and define some actions for those key bindings.
+The [footer](https://textual.textualize.io/widgets/footer/) is yet another built-in widget. It's like the control center for all your Textual bindings, neatly displaying all the bindings you've set up in your app. All you've got to do to setup bindings is utilize the ["magic" `BINDINGS` attribute](https://textual.textualize.io/guide/input/#bindings) in your Textual `App` and/or widget and define some actions for those key bindings.
 
 ```python
 from textual.app import App
@@ -314,9 +337,9 @@ def action_show_tab(self, tab: str) -> None:
         self.get_widget_by_id("plan_node_tree").focus()
 ```
 
-### Details Panels 
+### Details Panels
 
-<CaptionedImage 
+<CaptionedImage
   src={highlightedTuiPanels}
   alt="Screenshot of sparql profiler tui highlighting overview and details panel"
   caption="The high-level profiler information panel is outlined in cyan and the plan node/operator details panel is outlined in yellow."
@@ -363,16 +386,18 @@ class ProfilerPanel(Widget):
 ```
 
 <Callout intent="info">
-I was able to just add an [message handler](https://textual.textualize.io/api/on/) such that when a tree node is highlighted (in focus) the "Node Details" panel (`PlanNodeDetails` widget) is updated displaying the node information.
+  I was able to just add a [message
+  handler](https://textual.textualize.io/api/on/) such that when a tree node is
+  highlighted (in focus) the "Node Details" panel (`PlanNodeDetails` widget) is
+  updated displaying the node information.
 </Callout>
 
 ## Takeaways
 
-In tackling this project, I discovered that Textualize proved to be an excellent solution. Its abundance of built-in widgets simplifies the initial stages of app composition, while its flexibility allows for the relatively straightforward creation of custom widgets. While I wouldn't categorize this project as entirely production-ready, it only demanded a weekend's worth of effort to achieve functionality. For those well-versed in Python, averse to dealing with frontend complexities, and inclined towards constructing command-line tools, Textualize comes highly recommended.
+In tackling this project, I discovered that Textualize proved to be an excellent library for what I set out to built. Its abundance of built-in widgets simplifies the initial stages of app composition, while its flexibility allows for the relatively straightforward creation of custom widgets. While I wouldn't categorize this project as entirely production-ready, it only demanded a weekend's worth of effort to achieve useful functionality. For those well-versed in Python, averse to dealing with frontend complexities, and inclined towards constructing command-line tools, Textualize comes highly recommended from me.
 
 ## Additional Links
 
 - [Source Code on Github](https://github.com/noahgorstein/stardog_sparql_profiler_tui)
 - [Stardog Docs- SPARQL Profiler](https://docs.stardog.com/operating-stardog/database-administration/managing-query-performance#sparql-profiler)
 - [Textualize Docs](https://textual.textualize.io/)
-
