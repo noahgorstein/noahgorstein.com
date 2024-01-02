@@ -10,7 +10,7 @@ import H5 from "../../components/mdx/H5.astro";
 import H6 from "../../components/mdx/H6.astro";
 import Paragraph from "../../components/mdx/Paragraph.astro";
 import UL from "../../components/mdx/UL.astro";
-import Blockquote from "../../components/mdx/Blockquote.astro";
+import BlockQuote from "../../components/mdx/BlockQuote.astro";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -26,7 +26,7 @@ const { Content, headings } = await render();
 
 const components = {
   a: Link,
-  blockquote: Blockquote,
+  blockquote: BlockQuote,
   code: InlineCode,
   h2: H2,
   h3: H3,
