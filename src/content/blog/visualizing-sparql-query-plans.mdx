@@ -16,7 +16,7 @@ import Callout from "../../components/Callout.astro";
 import CaptionedVideo from "../../components/CaptionedVideo.astro";
 import CaptionedImage from "../../components/CaptionedImage.astro";
 
-Welcome to my little journey of visualizing profiled SPARQL query plans using Python and Textualize! In this blog post, I'll walk you through my experience builting a Textual User Interface (TUI) to bring profiled SPARQL query plans from Stardog to life. But before we dive into the details, let me give you a sneak peek of the final product:
+Welcome to my little journey of visualizing profiled SPARQL query plans using Python and [Textualize](https://www.textualize.io/)! In this blog post, I'll walk you through my experience building a [text-based user interface (TUI)](https://en.wikipedia.org/wiki/Text-based_user_interface) to bring profiled SPARQL query plans from [Stardog](https://docs.stardog.com/) to life. But before we dive into the details, let me give you a sneak peek of the final product:
 
 <CaptionedVideo
   src={profilerTuiDemo}
@@ -31,7 +31,7 @@ Welcome to my little journey of visualizing profiled SPARQL query plans using Py
 
 ## The Challenge of Reading Profiled SPARQL Query Plans in Stardog
 
-I have been working at [Stardog](https://docs.stardog.com/) now for almost 4 years and while I don't work on the platforms internals (e.g. the query engine), I have had to interact with query plans while writing SPARQL queries against the platform to optimize my inefficient queries 😊. Stardog has always been able to produce and surface SPARQL query plans to users and semi-recently added a capability to add profiling information to the query plan to help users reduce and eliminate bottlenecks in their queries. This capability is exposed as part of Stardog's query plan service and like many other features is exposed via an [HTTP endpoint](https://stardog-union.github.io/http-docs/#tag/SPARQL/operation/explainQueryPost), [Stardog's CLI](https://docs.stardog.com/stardog-cli-reference/query/query-explain), and [Stardog Studio](https://www.stardog.com/studio/) (an IDE-like experience for interacting with Stardog). This is all good and well, except that the output from the profiler can get pretty verbose and a bit unwieldly to visually inspect.
+I have been working at Stardog now for almost 4 years and while I don't work on the platform's internals (e.g. the query engine), I have had to interact with query plans numerous times - usually while trying to optimize my poorly written SPARQL queries 😊. Stardog has always been able to produce and surface SPARQL query plans to users and semi-recently added a capability to add profiling information to the query plan to help users reduce and eliminate bottlenecks in their queries. This capability is exposed as part of Stardog's query plan service, and like many other features, is exposed via an [HTTP endpoint](https://stardog-union.github.io/http-docs/#tag/SPARQL/operation/explainQueryPost), the [Stardog's CLI](https://docs.stardog.com/stardog-cli-reference/query/query-explain), and [Stardog Studio](https://www.stardog.com/studio/) (an IDE-like experience for interacting with Stardog). This is all good and well, except that the output from the profiler can get pretty verbose and a bit unwieldly to visually inspect.
 
 For example, here's the abbreviated CLI output from a profiled query.
 
@@ -71,7 +71,7 @@ Distinct [#17.7M], memory: {total=1.5G (96.1%)}, results: 18.4M, wall time: 1598
                   `─ Scan[PSOC](?article1, <http://swrc.ontoware.org/ontology#journal>, ?journal) [#208K], results: 208K (with gaps), wall time: 128 ms (0.2%)
 ```
 
-The Stardog CLI and Stardog Studio by will return the profiled query plan in plain text containing information about the profiled plan, the query profiled, and a tree representing the query plan with profiler information about individual nodes.
+The Stardog CLI and Stardog Studio by will return the profiled query plan in plain text containing information about the profiled plan, the query profiled, and a tree representing the query plan with profiler information about individual nodes, also known as "operators".
 
 <Callout intent="info">
 
@@ -394,7 +394,7 @@ class ProfilerPanel(Widget):
 
 ## Takeaways
 
-In tackling this project, I discovered that Textualize proved to be an excellent library for what I set out to built. Its abundance of built-in widgets simplifies the initial stages of app composition, while its flexibility allows for the relatively straightforward creation of custom widgets. While I wouldn't categorize this project as entirely production-ready, it only demanded a weekend's worth of effort to achieve useful functionality. For those well-versed in Python, averse to dealing with frontend complexities, and inclined towards constructing command-line tools, Textualize comes highly recommended from me.
+In tackling this project, I discovered that Textualize proved to be an excellent library for what I set out to build. Its abundance of built-in widgets simplifies the initial stages of app composition, while its flexibility allows for the relatively straightforward creation of custom widgets. While I wouldn't categorize this project as entirely production-ready, it only demanded a weekend's worth of effort to achieve useful functionality. For those well-versed in Python, averse to dealing with frontend complexities, and inclined towards constructing command-line tools, Textualize comes highly recommended from me.
 
 ## Additional Links
 
