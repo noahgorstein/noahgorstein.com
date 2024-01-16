@@ -5,3 +5,9 @@ const props = Astro.props;
 <ul {...props} class="list-inside list-disc">
   <slot />
 </ul>
+
+<style>
+  ul ul {
+    @apply ml-4;
+  }
+</style>
