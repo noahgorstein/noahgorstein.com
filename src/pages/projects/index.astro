@@ -2,11 +2,16 @@
 import BaseHead from "../../components/BaseHead.astro";
 import Header from "../../components/Header.astro";
 import Footer from "../../components/Footer.astro";
-import GithubRepoLink from "../../components/GithubRepoLink";
+import ProjectGrid from "../../components/ProjectGrid";
 import { SITE_TITLE } from "../../consts";
 import { getCollection } from "astro:content";
 
 const projects = await getCollection("projects");
+const projectData = projects.map((p) => ({
+  title: p.data.title,
+  description: p.data.description,
+  slug: p.slug,
+}));
 ---
 
 <!DOCTYPE html>
@@ -21,32 +26,7 @@ const projects = await getCollection("projects");
     <Header />
     <main class="flex min-h-screen flex-col items-center p-8">
       <h2 class="text-xl">Projects</h2>
-      <section class="grid grid-cols-12">
-        <div class="md:col-span-2"></div>
-        <ul
-          class="col-span-12 mt-4 flex flex-wrap items-stretch justify-between gap-8 md:col-span-8 md:grid-cols-3"
-        >
-          {
-            projects.map((project) => (
-              <li class="group flex basis-full flex-col gap-8 rounded-xl border-2 border-foreground px-4 py-4 transition-colors hover:border-emerald md:col-span-1 md:basis-[calc(50%-3rem)] lg:basis-[calc(33.33%-3rem)]">
-                <a
-                  class="flex flex-col gap-4"
-                  href={`/projects/${project.slug}`}
-                >
-                  <span class="mt-4 text-lg font-bold decoration-2 underline-offset-4 group-hover:underline">
-                    {project.data.title}
-                  </span>
-                  <p class="text-sm group-hover:underline">
-                    {project.data.description}{" "}
-                  </p>
-                </a>
-                <GithubRepoLink client:idle repo={project.data.title} />
-              </li>
-            ))
-          }
-        </ul>
-        <div class="md:col-span-2"></div>
-      </section>
+      <ProjectGrid client:idle projects={projectData} />
     </main>
     <Footer />
   </body>
