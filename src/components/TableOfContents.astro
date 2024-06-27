@@ -1,7 +1,7 @@
 ---
 import type { MarkdownHeading } from "astro";
 import TableOfContentsHeading from "./TableOfContentsHeading.astro";
-import GithubRepoLink from "./GithubRepoLink";
+import GitHubRepoLink from "./GitHubRepoLink";
 
 const {
   headings,
@@ -47,5 +47,5 @@ function buildToc(headings: [MarkdownHeading]) {
   >
     {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}
   </ul>
-  {repo && <GithubRepoLink client:idle className="mt-4 pl-2" repo={repo} />}
+  {repo && <GitHubRepoLink client:idle className="mt-4 pl-2" repo={repo} />}
 </nav>
