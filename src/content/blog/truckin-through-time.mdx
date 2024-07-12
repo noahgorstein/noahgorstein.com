@@ -62,7 +62,7 @@ This flowchart outlines the main steps of the program I wrote. The key stages of
 2. **Data Processing/Parsing**: Using Ollama (Llama3) to structure the raw data into a usable format.
 3. **Persisting the Data**: Storing the processed information in a SQLite database.
 
-This rest of this post details each of these steps. This approach allowed us to transform unstructured web data into a fairly comprehensive, queryable database of Grateful Dead performances.
+This rest of this post details each of these steps. This approach allowed me to transform unstructured web data into a fairly comprehensive, queryable database of Grateful Dead performances.
 
 ## Web Scraping
 
@@ -148,7 +148,7 @@ def get_touring_years() -> list[TouringYear]:
 ```
 
 <Callout intent="info">
-  `TouringYear` and `ConcertData` are just simple Pydantic models used to store
+  `TouringYear` and `ConcertData` are just simple [Pydantic](https://docs.pydantic.dev/latest/) models used to store
   the scraped data before processing it further and ultimately writing it to the
   database.
 </Callout>
@@ -197,7 +197,7 @@ Long Beach Arena (11/15/87)
 Oakland Coliseum Arena (12/27/87)
 ```
 
-Regex alone was insufficient for handling these variations (and more). After tweaking the logic several times, I tried using ChatGPT to extract the JSON from the setlist. This worked phenomenally.
+Regex alone was insufficient for handling these variations (and more). After tweaking the logic several times, I of course tried using ChatGPT to extract the JSON from the setlist. This worked phenomenally.
 
 I considered using OpenAI's API, which even has a JSON mode to ensure only JSON is returned, but the API is not free, and I didn't want to pay for something I was just experimenting with.
 
@@ -279,7 +279,7 @@ Rather than complicating my initial regex approach with additional logic to hand
 
 ### Data Extraction using Ollama
 
-Using the [ollama-python](https://github.com/ollama/ollama-python) library, which is just a simple wrapper around the Ollama server API, this became a lot simpler than trying to create multiple regex patterns to potentially match all the concert variations.
+Using the [ollama-python](https://github.com/ollama/ollama-python) library, which is just a simple wrapper around the Ollama server API, this became a lot simpler than trying to create multiple regex patterns to potentially match all the concert and setlist variations.
 
 <Callout intent="info">
   I ran the Ollama server on my 2021 M1 Macbook Pro with 16GM RAM serving
