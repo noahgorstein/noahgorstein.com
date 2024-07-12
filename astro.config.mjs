@@ -7,6 +7,7 @@ import autoLinkHeadings from "rehype-autolink-headings";
 import { h, s } from "hastscript";
 import tailwind from "@astrojs/tailwind";
 import { fileURLToPath } from "url";
+import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 
 // The following configuration for rehype-autolink-headings was taken from https://github.com/withastro/docs/blob/main/astro.config.ts
 import expressiveCode from "astro-expressive-code";
@@ -58,7 +59,10 @@ export default defineConfig({
     expressiveCode({
       themes: ["github-light", "github-dark"],
       useDarkModeMediaQuery: false,
-      plugins: [{ baseStyles: `margin: 2rem 0px;` }],
+      plugins: [
+        pluginCollapsibleSections(),
+        { baseStyles: `margin: 2rem 0px;` },
+      ],
     }),
     mdx(),
     sitemap(),

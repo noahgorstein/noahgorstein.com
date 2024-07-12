@@ -8,10 +8,10 @@ const { intent } = Astro.props;
 
 <div
   class:list={[
-    "my-8 mx-6 rounded py-2",
-    { "bg-blue": intent === "info" },
-    { "bg-yellow": intent === "warning" },
-    { "bg-red": intent === "danger" },
+    "my-8 mx-6 rounded py-4 border-2",
+    { "border-blue": intent === "info" },
+    { "border-yellow": intent === "warning" },
+    { "border-red": intent === "danger" },
   ]}
 >
   <header class="px-4">

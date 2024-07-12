@@ -10,7 +10,11 @@ import H5 from "../../components/mdx/H5.astro";
 import H6 from "../../components/mdx/H6.astro";
 import Paragraph from "../../components/mdx/Paragraph.astro";
 import UL from "../../components/mdx/UL.astro";
+import OL from "../../components/mdx/OL.astro";
 import BlockQuote from "../../components/mdx/BlockQuote.astro";
+import THead from "../../components/mdx/THead.astro";
+import Table from "../../components/mdx/Table.astro";
+import TH from "../../components/mdx/TH.astro";
 
 export async function getStaticPaths() {
   const projects = await getCollection("projects");
@@ -35,6 +39,10 @@ const components = {
   h6: H6,
   p: Paragraph,
   ul: UL,
+  ol: OL,
+  table: Table,
+  thead: THead,
+  th: TH,
 };
 ---
 

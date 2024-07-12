@@ -10,7 +10,14 @@ import H5 from "../../components/mdx/H5.astro";
 import H6 from "../../components/mdx/H6.astro";
 import Paragraph from "../../components/mdx/Paragraph.astro";
 import UL from "../../components/mdx/UL.astro";
+import OL from "../../components/mdx/OL.astro";
 import BlockQuote from "../../components/mdx/BlockQuote.astro";
+import Table from "../../components/mdx/Table.astro";
+import THead from "../../components/mdx/THead.astro";
+import TBody from "../../components/mdx/TBody.astro";
+import TH from "../../components/mdx/TH.astro";
+import TR from "../../components/mdx/TR.astro";
+import TD from "../../components/mdx/TD.astro";
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -35,6 +42,13 @@ const components = {
   h6: H6,
   p: Paragraph,
   ul: UL,
+  ol: OL,
+  table: Table,
+  thead: THead,
+  tbody: TBody,
+  th: TH,
+  tr: TR,
+  td: TD,
 };
 ---
 
