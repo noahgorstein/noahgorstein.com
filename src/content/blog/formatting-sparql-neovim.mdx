@@ -1,5 +1,5 @@
 ---
-title: Formatting SPARQL Queries with Neovim 
+title: Formatting SPARQL Queries with Neovim
 description: "Learn how to format SPARQL queries in Neovim"
 ogImage: "/ogImages/blog/neovim_format_sparql.png"
 pubDate: "Jan 13 2024"
@@ -20,7 +20,9 @@ Just a quick post here. I already integrated a SPARQL language server using Neov
 />
 
 <Callout intent="info">
-See my post on [Integrating a SPARQL Language Server with Neovim's LSP Client](/blog/sparql-lsp) if you're interested in seeing diagnostic information while editing your SPARQL queries with Neovim.
+  See my post on [Integrating a SPARQL Language Server with Neovim's LSP
+  Client](/blog/sparql-lsp) if you're interested in seeing diagnostic
+  information while editing your SPARQL queries with Neovim.
 </Callout>
 
 ## Finding a Formatter
@@ -31,7 +33,7 @@ Before writing the configuration for Neovim to run the formatter, I needed to fi
 
 ## Wiring up Neovim
 
-Next, I set up an [autocmd](https://neovim.io/doc/user/autocmd.html#autocmd) (autocommand) to run [`sparql-formatter`](#finding-a-formatter) on files with extensions `.sparql` or `.rq` whenever they are saved. 
+Next, I set up an [autocmd](https://neovim.io/doc/user/autocmd.html#autocmd) (autocommand) to run [`sparql-formatter`](#finding-a-formatter) on files with extensions `.sparql` or `.rq` whenever they are saved.
 
 ```lua title="commands.lua"
 vim.api.nvim_create_autocmd("BufWritePost", {
@@ -66,31 +68,32 @@ vim.api.nvim_create_autocmd("BufWritePost", {
 
 Let's break it down.
 
-### Create the Autocommand 
-   - The [`vim.api.nvim_create_autocmd`](https://neovim.io/doc/user/api.html#nvim_create_autocmd()) API creates an **autocommand** for the event `BufWritePost` (triggered after writing the buffer to disk). It specifies an [**autocommand group**](https://neovim.io/doc/user/autocmd.html#autocmd-groups) (`formatting`) for the autocommand to organize related commands and clears the group before defining new commands. The autocommand is triggered for files with `.sparql` and `.rq` extensions.
+### Create the Autocommand
+
+The [`vim.api.nvim_create_autocmd`](<https://neovim.io/doc/user/api.html#nvim_create_autocmd()>) API creates an **autocommand** for the event `BufWritePost` (triggered after writing the buffer to disk). It specifies an [**autocommand group**](https://neovim.io/doc/user/autocmd.html#autocmd-groups) (`formatting`) for the autocommand to organize related commands and clears the group before defining new commands. The autocommand is triggered for files with `.sparql` and `.rq` extensions.
 
 ### Define the Callback Function for the Autocommand
 
-  - The callback function (assigned to the `callback` parameter) is executed when the autocommand is triggered. It gets the current buffer number (`bufnr`) and reads the contents of the buffer into a variable named `sparql`. I then worked on [formatting the buffer contents](#formating-the-buffer-contents) within this callback.
+The callback function (assigned to the `callback` parameter) is executed when the autocommand is triggered. It gets the current buffer number (`bufnr`) and reads the contents of the buffer into a variable named `sparql`. I then worked on [formatting the buffer contents](#formating-the-buffer-contents) within this callback.
 
 #### Formating the Buffer Contents
 
-  - I used process substitution to pass the contents of my Neovim buffer (presumably containing a valid SPARQL query) to the `sparql-formatter` command.
-  - The [`vim.fn.jobstart`](https://neovim.io/doc/user/builtin.html#jobstart()) API is then used to start a job (asynchronous process).
-    - The `on_stdout` and `on_stderr` parameters are assigned callback functions that handle the standard output and standard error emitted from the job, respectively.
+I used process substitution to pass the contents of my Neovim buffer (presumably containing a valid SPARQL query) to the `sparql-formatter` command.
 
-##### Handling StdOut 
+The [`vim.fn.jobstart`](<https://neovim.io/doc/user/builtin.html#jobstart()>) API is then used to start a job (asynchronous process).
+- The `on_stdout` and `on_stderr` parameters are assigned callback functions that handle the standard output and standard error emitted from the job, respectively.
 
-- In the `on_stdout` callback, if the formatted data is not empty and _different_ from the original SPARQL query, it updates the buffer with the formatted data and writes the buffer to disk, effectively saving the formatting changes.
-- It also prints a message indicating that the file has been formatted.
+##### Handling StdOut
 
-##### Handling StdErr 
+In the `on_stdout` callback, if the formatted data is not empty and _different_ from the original SPARQL query, it updates the buffer with the formatted data and writes the buffer to disk, effectively saving the formatting changes. It also prints a message indicating that the file has been formatted.
 
-- In the `on_stderr` callback, if there is any error output, it prints the error message and notifies that the SPARQL couldn't be formatted.
+##### Handling StdErr
 
-## The Final Product 
+In the `on_stderr` callback, if there is any error output, it prints the error message and notifies that the SPARQL couldn't be formatted.
 
-That's it! Autocommands are extremely powerful and really let you automate easily within Neovim. All it took was roughly 30 lines of Lua to auto format SPARQL queries on save with __no__ Neovim plugins.
+## The Final Product
+
+That's it! Autocommands are extremely powerful and really let you automate easily within Neovim. All it took was roughly 30 lines of Lua to auto format SPARQL queries on save with **no** Neovim plugins.
 
 <CaptionedVideo
   src={neovim}
