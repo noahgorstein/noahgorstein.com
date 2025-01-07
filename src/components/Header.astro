@@ -1,39 +1,27 @@
 ---
 import HeaderLink from "./HeaderLink.astro";
-import ThemeIcon from "./ThemeIcon.astro";
+import ThemeSelect from "./ThemeSelect.tsx";
 import { SITE_TITLE } from "../consts";
 ---
 
-<header class="border-b border-transparent px-8">
+<header class="border-b border-foreground/10 px-8">
   <nav
     class="flex flex-col items-center justify-between gap-4 py-8 md:flex-row md:gap-0"
   >
     <div class="flex flex-row gap-2">
-      <h2 class="font-mono text-lg font-bold hover:text-emerald">
-        <a href="/" class="flex flex-row gap-2"
-          >{SITE_TITLE}
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke-width="1.5"
-            stroke="currentColor"
-            class="h-6 w-6"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              d="M6.75 7.5l3 2.25-3 2.25m4.5 0h3m-9 8.25h13.5A2.25 2.25 0 0021 18V6a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v12a2.25 2.25 0 002.25 2.25z"
-            ></path>
-          </svg>
-        </a>
+      <h2
+        class="flex items-center justify-center text-lg font-bold hover:text-active"
+      >
+        <a href="/" class="flex flex-row gap-2">{SITE_TITLE}</a>
       </h2>
     </div>
     <div class="flex gap-4">
       <HeaderLink href="/">Home</HeaderLink>
       <HeaderLink href="/blog">Blog</HeaderLink>
       <HeaderLink href="/projects">Projects</HeaderLink>
-      <ThemeIcon />
+      <div class="min-h-[44px] min-w-[44px] content-center">
+        <ThemeSelect client:only />
+      </div>
     </div>
   </nav>
 </header>

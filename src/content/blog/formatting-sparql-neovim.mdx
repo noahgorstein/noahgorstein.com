@@ -81,6 +81,7 @@ The callback function (assigned to the `callback` parameter) is executed when th
 I used process substitution to pass the contents of my Neovim buffer (presumably containing a valid SPARQL query) to the `sparql-formatter` command.
 
 The [`vim.fn.jobstart`](<https://neovim.io/doc/user/builtin.html#jobstart()>) API is then used to start a job (asynchronous process).
+
 - The `on_stdout` and `on_stderr` parameters are assigned callback functions that handle the standard output and standard error emitted from the job, respectively.
 
 ##### Handling StdOut

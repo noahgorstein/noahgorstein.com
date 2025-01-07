@@ -42,7 +42,7 @@ const ProjectGrid: React.FC<ProjectGridProps> = ({
         {projectData.map((project) => (
           <li
             key={project.title}
-            className="group flex basis-full flex-col gap-8 rounded-xl border-2 border-foreground px-4 py-4 transition-colors hover:border-emerald md:col-span-1 md:basis-[calc(50%-3rem)] lg:basis-[calc(33.33%-3rem)]"
+            className="group flex basis-full flex-col gap-8 rounded-xl border-2 border-foreground px-4 py-4 transition-colors hover:border-active md:col-span-1 md:basis-[calc(50%-3rem)] lg:basis-[calc(33.33%-3rem)]"
           >
             <a
               className="flex flex-col gap-4"

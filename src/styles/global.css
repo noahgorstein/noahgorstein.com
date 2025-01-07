@@ -12,6 +12,8 @@
     --color-blue: 186 230 253; /* sky 200 */
     --color-yellow: 253 230 138; /* amber 200 */
     --color-red: 254 202 202; /* red 200 */
+    --color-active: var(--color-emerald);
+    --color-accent: var(--color-pink);
     --color-foreground: var(--color-black);
     --color-background: var(--color-white);
   }
@@ -25,8 +27,26 @@
     --color-blue: 2 132 199; /* sky 600 */
     --color-yellow: 217, 119, 6; /* amber 600 */
     --color-red: 220 38 38; /* red 600 */
+    --color-active: var(--color-emerald);
+    --color-accent: var(--color-pink);
     --color-foreground: var(--color-white);
     --color-background: var(--color-black);
+  }
+
+  :root[class~="eighties"] {
+    --color-white: 245 245 220;
+
+    --color-blue: 43 209 252;
+    --color-yellow: 255 219 88;
+    --color-red: 255 61 90;
+
+    --color-brown: 139 69 19;
+    --color-teal: 64 224 208;
+
+    --color-active: var(--color-teal);
+    --color-accent: var(--color-yellow);
+    --color-foreground: var(--color-white);
+    --color-background: var(--color-brown);
   }
 }
 
@@ -44,7 +64,7 @@ a {
 }
 
 .anchor-icon {
-  @apply inline-block pl-4 text-foreground hover:text-emerald;
+  @apply inline-block pl-4 text-foreground hover:text-active;
 }
 
 @font-face {

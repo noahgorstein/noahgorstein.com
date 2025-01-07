@@ -2,6 +2,22 @@
 const props = Astro.props;
 ---
 
-<a {...props} class="text-pink underline underline-offset-4 hover:decoration-2"
+<a
+  {...props}
+  class="text-accent underline underline-offset-4 hover:decoration-2"
   ><slot /></a
 >
+
+<style>
+  /* 
+ need to use :global because of how
+ Astro scopes styles to element/components
+ in the <slot>
+*/
+  :global(a:has(code:hover)) {
+    @apply no-underline;
+  }
+  :global(a code:hover) {
+    @apply border-active;
+  }
+</style>

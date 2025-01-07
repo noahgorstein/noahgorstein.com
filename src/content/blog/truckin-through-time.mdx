@@ -14,10 +14,13 @@ import Callout from "../../components/Callout.astro";
 
 ## Introduction
 
-Using Python, I constructed a Grateful Dead setlist archive (1970s-1990s) from abandoned webpages. This post covers my first experience writing a web scraper to aggregate the Grateful Dead setlist data from [Mark Leone's old Carnegie Mellon website](https://www.cs.cmu.edu/~mleone/).  
+Using Python, I constructed a Grateful Dead setlist archive (1970s-1990s) from abandoned webpages. This post covers my first experience writing a web scraper to aggregate the Grateful Dead setlist data from [Mark Leone's old Carnegie Mellon website](https://www.cs.cmu.edu/~mleone/).
 
 <Callout intent="info">
-Mark was, I believe, a researcher at CMU. I didn’t delve deeply into Mark’s official role or position. My apologies to Mark if he happens to be reading this! Nonetheless, I appreciate his efforts in aggregating this data; it greatly contributed to the project.
+  Mark was, I believe, a researcher at CMU. I didn’t delve deeply into Mark’s
+  official role or position. My apologies to Mark if he happens to be reading
+  this! Nonetheless, I appreciate his efforts in aggregating this data; it
+  greatly contributed to the project.
 </Callout>
 
 **Tools and Technologies Used**:
@@ -148,9 +151,9 @@ def get_touring_years() -> list[TouringYear]:
 ```
 
 <Callout intent="info">
-  `TouringYear` and `ConcertData` are just simple [Pydantic](https://docs.pydantic.dev/latest/) models used to store
-  the scraped data before processing it further and ultimately writing it to the
-  database.
+  `TouringYear` and `ConcertData` are just simple
+  [Pydantic](https://docs.pydantic.dev/latest/) models used to store the scraped
+  data before processing it further and ultimately writing it to the database.
 </Callout>
 
 ## Extracting Data as JSON with Llama3

@@ -64,3 +64,23 @@ const { title, description, image = "/me-madrid.jpeg" } = Astro.props;
 <meta property="twitter:title" content={title} />
 <meta property="twitter:description" content={description} />
 <meta property="twitter:image" content={new URL(image, Astro.url)} />
+
+<script is:inline>
+  (function () {
+    const theme =
+      localStorage.getItem("theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
+
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+      document.documentElement.setAttribute("data-theme", "github-dark");
+    } else if (theme === "eighties") {
+      document.documentElement.classList.add("eighties");
+      document.documentElement.setAttribute("data-theme", "synthwave-84");
+    } else {
+      document.documentElement.setAttribute("data-theme", "github-light");
+    }
+  })();
+</script>

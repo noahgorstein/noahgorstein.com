@@ -57,7 +57,7 @@ export default defineConfig({
   },
   integrations: [
     expressiveCode({
-      themes: ["github-light", "github-dark"],
+      themes: ["github-light", "github-dark", "synthwave-84"],
       useDarkModeMediaQuery: false,
       plugins: [
         pluginCollapsibleSections(),

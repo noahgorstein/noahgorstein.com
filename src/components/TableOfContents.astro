@@ -42,7 +42,7 @@ function buildToc(headings: [MarkdownHeading]) {
   <ul
     class:list={[
       "mt-2 block list-inside list-none pl-2 leading-3 ",
-      { "border-l-[1px]": showBorder },
+      { "border-l-[1px] border-foreground/10": showBorder },
     ]}
   >
     {toc.map((heading) => <TableOfContentsHeading heading={heading} />)}

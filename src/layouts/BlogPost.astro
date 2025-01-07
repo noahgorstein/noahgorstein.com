@@ -24,7 +24,7 @@ const { headings } = Astro.props;
 
   <body>
     <Header />
-    <main class="flex flex-col items-center">
+    <main class="flex flex-col items-center pt-8">
       <section class="grid grid-cols-12 gap-4 p-1">
         <div class="xl:col-span-3"></div>
         <article
@@ -42,7 +42,7 @@ const { headings } = Astro.props;
                 )
               }
             </div>
-            <hr />
+            <hr class="border-1 border-foreground/10" />
             <TableOfContents
               class="my-6 rounded border-[1px] p-4 xl:hidden"
               showBorder={false}
