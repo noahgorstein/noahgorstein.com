@@ -135,7 +135,7 @@ I am glossing over some details here, but do note, you don't always have to defi
 
 Now that I had the schema, I could start populating the graph with the actual PEP data from the API, ensuring that the data adhered to the schema, so that I could query it later on using my defined vocabulary from the schema. I wrote a Python script that read the JSON data from the PEPs API, transformed it into RDF triples, and then wrote the triples to a file. You can find this code in the [GitHub repository](https://github.com/noahgorstein/exploring-peps/blob/main/src/main.py) associated with this post.
 
-The below Turtle snippet represents  [PEP 484](https://peps.python.org/pep-0484/) in RDF:
+The below Turtle snippet represents  [PEP 402](https://peps.python.org/pep-0402/) in RDF:
 
 
 ```turtle
@@ -160,7 +160,7 @@ The below Turtle snippet represents  [PEP 484](https://peps.python.org/pep-0484/
 
 ```
 
-- The subject is `:pep-484`, which is the URI for PEP 484.
+- The subject is `:pep-402`, which is the URI for PEP 402.
 - The predicate is `peps:hasAuthor`, which is the relationship between the PEP and its author (Phillip J. Eby).
 - The predicate `peps:dateCreated` is the relationship between the PEP and the date it was created (July 12, 2011).
 - The predicate `peps:hasPost` is the relationship between the PEP and a post associated with it. The `[ a pep:Post ; pep:postDate "2011-07-20"^^xsd:date ]` is a [blank node](https://en.wikipedia.org/wiki/Blank_node), which is a node in the graph that doesn't have a URI. These are useful for representing entities or nodes that do not have a URI associated with it.
@@ -172,7 +172,7 @@ The below Turtle snippet represents  [PEP 484](https://peps.python.org/pep-0484/
 - The predicate `peps:url` is the relationship between the PEP and its URL (https://peps.python.org/pep-0402/).
 
 <Callout intent="info">
-The beginning of the Turtle file contains a few [*prefixes*](https://www.w3.org/TR/rdf11-concepts/#vocabularies) that are used to shorten the URIs in the file. For example, `:pep-484` is shorthand for `https://python.org/peps/pep-484`. This makes the file more readable and easier to write.
+The beginning of the Turtle file contains a few [*prefixes*](https://www.w3.org/TR/rdf11-concepts/#vocabularies) that are used to shorten the URIs in the file. For example, `:pep-402` is shorthand for `https://python.org/peps/pep-402`. This makes the file more readable and easier to write.
 </Callout>
 
 <Callout intent="info">
