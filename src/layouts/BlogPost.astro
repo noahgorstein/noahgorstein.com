@@ -82,8 +82,8 @@ const { headings } = Astro.props;
       };
 
       const observerOption: IntersectionObserverInit = {
-        rootMargin: "-50% 0px",
-        threshold: 0,
+        rootMargin: "-30% 0px",
+        threshold: [0.1],
       };
       const headingObserver = new IntersectionObserver(
         setCurrent,
