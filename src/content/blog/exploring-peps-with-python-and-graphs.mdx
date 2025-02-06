@@ -31,7 +31,7 @@ If you are not familiar with RDF or want a refresher, I highly recommend checkin
 <Callout intent="random">
 While on the PEPs site, I came across [PEP 801](https://peps.python.org/pep-0801/), titled "Reserved" authored by Barry Warsaw from 2018. The abstract is the following: "This PEP is reserved for future use, because **We are the 801**. Contact the author for details.", with a YouTube link to Brian Eno's, "The True Wheel" 🤣. 
 
-<iframe width="auto" height="315" src="https://www.youtube.com/embed/p4atQSktICE?si=pDFt0yJTb1FfT_6G" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+<iframe width="300" height="315" src="https://www.youtube.com/embed/p4atQSktICE?si=pDFt0yJTb1FfT_6G" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 </Callout>
 
@@ -112,7 +112,7 @@ It makes a bit more sense when the triple almost reads like an English statement
 - "pep 484 has an author Guido van Rossum"
 - "pep 484 has a title Type Hints"
 
-It becomes a little more "meta" when you think about the schema itself being represented as triples in the graph, but that's all it is! They are just statements about the data in the graph. For example, below is the Turtle serialization of the datatype property `pep:type`, which represents the type of the PEP ("Informational", "Standard Track", etc). It says that the property `pep:type` is a `owl:DatatypeProperty` with a domain of `pep:PythonEnhancementProposal` and a range of `xsd:string`, meaning that the property `pep:type` is a property on the class `pep:PythonEnhancementProposal` that has a value that is a string:
+It becomes a little more "meta" when you think about the schema itself being represented as triples in the graph, but that's all it is! They are just statements about the data in the graph. For example, below is the Turtle serialization of the datatype property `peps:type`, which represents the type of the PEP ("Informational", "Standard Track", etc). It says that the property `peps:type` is a `owl:DatatypeProperty` with a domain of `peps:PythonEnhancementProposal` and a range of `xsd:string`, meaning that the property `peps:type` is a property on the class `pep:PythonEnhancementProposal` that has a value that is a string:
 
 ```turtle
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
