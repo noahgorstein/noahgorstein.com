@@ -222,8 +222,8 @@ for (const [collectionName, collectionPhotos] of collections) {
           collections.length > 1 && (
             <nav class="mt-8 rounded-xl border border-foreground/10 bg-background p-6 shadow-sm xl:hidden">
               <h3 class="mb-4 text-lg font-semibold">Collections</h3>
-              <div class="-mx-6 px-6">
-                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+              <div class="-mx-6 px-6 relative">
+                <div class="flex gap-3 overflow-x-auto pb-4 scrollbar-hide" id="tocScrollContainer">
                   {collections.map(([collectionName, collectionPhotos]) => {
                     const info = collectionInfo[collectionName] || {};
                     return (
@@ -246,6 +246,15 @@ for (const [collectionName, collectionPhotos] of collections) {
                       </a>
                     );
                   })}
+                </div>
+                
+                <!-- Navigation arrows and scroll indicator -->
+                <div class="flex items-center justify-center mt-2 gap-3" id="tocNavigation" style="display: none;">
+                  <button id="tocScrollLeft" class="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center text-xs hover:bg-foreground/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">‹</button>
+                  <div class="h-1 w-16 bg-foreground/5 rounded-full overflow-hidden">
+                    <div class="h-full bg-foreground/20 rounded-full transition-all duration-200" id="tocScrollPill" style="width: 100%; transform: translateX(0%)"></div>
+                  </div>
+                  <button id="tocScrollRight" class="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center text-xs hover:bg-foreground/20 transition-colors disabled:opacity-30 disabled:cursor-not-allowed">›</button>
                 </div>
               </div>
             </nav>
@@ -673,6 +682,58 @@ for (const [collectionName, collectionPhotos] of collections) {
     window.addEventListener("scroll", updateActiveTocLink);
     // Initial update
     updateActiveTocLink();
+
+    // TOC horizontal scroll navigation
+    const tocContainer = document.getElementById("tocScrollContainer");
+    const tocNavigation = document.getElementById("tocNavigation");
+    const tocScrollLeft = document.getElementById("tocScrollLeft");
+    const tocScrollRight = document.getElementById("tocScrollRight");
+    const tocScrollPill = document.getElementById("tocScrollPill");
+
+    if (tocContainer && tocNavigation && tocScrollLeft && tocScrollRight && tocScrollPill) {
+      function updateTocNavigation() {
+        const { scrollLeft, scrollWidth, clientWidth } = tocContainer;
+        const maxScroll = scrollWidth - clientWidth;
+        
+        // Show/hide navigation based on whether scrolling is needed
+        if (maxScroll <= 0) {
+          tocNavigation.style.display = "none";
+          return;
+        }
+        
+        tocNavigation.style.display = "flex";
+        
+        // Update button states
+        tocScrollLeft.disabled = scrollLeft <= 0;
+        tocScrollRight.disabled = scrollLeft >= maxScroll;
+        
+        // Update pill position
+        const scrollPercentage = scrollLeft / maxScroll;
+        tocScrollPill.style.transform = `translateX(${scrollPercentage * 100}%)`;
+      }
+
+      // Scroll functions
+      function scrollTocLeft() {
+        tocContainer.scrollBy({ left: -200, behavior: "smooth" });
+      }
+      
+      function scrollTocRight() {
+        tocContainer.scrollBy({ left: 200, behavior: "smooth" });
+      }
+
+      // Event listeners
+      tocContainer.addEventListener("scroll", updateTocNavigation);
+      tocScrollLeft.addEventListener("click", scrollTocLeft);
+      tocScrollRight.addEventListener("click", scrollTocRight);
+      
+      // Initial update
+      updateTocNavigation();
+      
+      // Update on resize
+      window.addEventListener("resize", updateTocNavigation);
+    }
+
+
   });
 </script>
 
