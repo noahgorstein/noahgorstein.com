@@ -412,6 +412,15 @@ for (const [collectionName, collectionPhotos] of collections) {
     </div>
   </main>
 
+  <!-- Back to top button -->
+  <button
+    id="backToTop"
+    class="fixed bottom-6 right-6 w-12 h-12 bg-foreground/80 text-background rounded-full flex items-center justify-center text-lg opacity-0 pointer-events-none transition-all duration-300 hover:bg-foreground z-40 md:hidden"
+    aria-label="Back to top"
+  >
+    ↑
+  </button>
+
   <!-- Modal -->
   <div
     id="photoModal"
@@ -733,7 +742,30 @@ for (const [collectionName, collectionPhotos] of collections) {
       window.addEventListener("resize", updateTocNavigation);
     }
 
+    // Back to top button
+    const backToTop = document.getElementById("backToTop");
+    if (backToTop) {
+      function updateBackToTop() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const shouldShow = scrollTop > 300; // Show after scrolling 300px
+        
+        if (shouldShow) {
+          backToTop.style.opacity = "1";
+          backToTop.style.pointerEvents = "auto";
+        } else {
+          backToTop.style.opacity = "0";
+          backToTop.style.pointerEvents = "none";
+        }
+      }
 
+      backToTop.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+
+      window.addEventListener("scroll", updateBackToTop);
+      // Initial check
+      updateBackToTop();
+    }
   });
 </script>
 
