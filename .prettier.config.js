@@ -4,13 +4,5 @@ export default {
   singleQuote: true,
   trailingComma: "none",
   printWidth: 100,
-  plugins: ["prettier-plugin-astro", "prettier-plugin-tailwindcss"],
-  overrides: [
-    {
-      files: "*.astro",
-      options: {
-        parser: "astro",
-      },
-    },
-  ],
+  plugins: ["prettier-plugin-tailwindcss"],
 };

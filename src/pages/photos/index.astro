@@ -1,0 +1,687 @@
+---
+import Simple from "../../layouts/Simple.astro";
+
+const CLOUDINARY_CLOUD_NAME = "dn2yh43vf";
+
+interface CloudinaryImage {
+  public_id: string;
+  url: string;
+  secure_url: string;
+  width: number;
+  height: number;
+  created_at: string;
+  tags: string[];
+  context?: {
+    alt?: string;
+    name?: string;
+    description?: string;
+    caption?: string;
+    location?: string;
+    camera?: string;
+    film_stock?: string;
+    lens?: string;
+    collection?: string;
+  };
+}
+
+let photos: CloudinaryImage[] = [];
+
+try {
+  // Fetch photos from Cloudinary
+  // Note: This requires your API key to be set up as environment variables
+  const response = await fetch(
+    `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/resources/search`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Basic ${btoa(
+          `${import.meta.env.CLOUDINARY_API_KEY}:${
+            import.meta.env.CLOUDINARY_API_SECRET
+          }`
+        )}`,
+      },
+      body: JSON.stringify({
+        expression: "tags=blog",
+        max_results: 500,
+        with_field: ["context", "tags"],
+      }),
+    }
+  );
+
+  if (response.ok) {
+    const data = await response.json();
+    photos = data.resources || [];
+  }
+} catch (error) {
+  console.error("Failed to fetch photos from Cloudinary:", error);
+}
+
+// Sort photos by date (newest first)
+photos.sort(
+  (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+);
+
+// Group photos by collection
+const photosByCollection = new Map();
+photos.forEach((photo) => {
+  const collection = photo.context?.collection || "Uncategorized";
+  if (!photosByCollection.has(collection)) {
+    photosByCollection.set(collection, []);
+  }
+  photosByCollection.get(collection).push(photo);
+});
+
+// Sort photos within each collection by location
+photosByCollection.forEach((photos: CloudinaryImage[], collection: string) => {
+  photos.sort((a: CloudinaryImage, b: CloudinaryImage) => {
+    const locationA = a.context?.location || "zzz";
+    const locationB = b.context?.location || "zzz";
+    return locationA.localeCompare(locationB);
+  });
+});
+
+// Collection metadata
+interface CollectionMeta {
+  description?: string;
+  period?: string;
+  location?: string;
+  showPeriod?: boolean;
+  order?: number;
+}
+
+const collectionInfo: Record<string, CollectionMeta> = {
+  "Summer 2025": {
+    period: "Summer 2025",
+    showPeriod: false,
+    order: 1
+  },
+  "First Fuji GS645S Shots": {
+    description: "First shots taken with the Fuji GS645S camera. My first time shooting medium format and using a rangefinder.",
+    period: "Summer 2025",
+    order: 2
+  },
+  Scotland: {
+    description:
+      "Week-long trip exploring the Scottish Highlands and Edinburgh",
+    period: "April 2025",
+    order: 3
+  },
+  "Spring 2025": {
+    period: "Spring 2025",
+    showPeriod: false,
+    order: 4
+  },
+  "Expired Kodak Royal Gold": {
+    description: "Experimenting shooting with Kodak Royal Gold 400 film that expired in 1996",
+    period: "Fall 2024",
+    order: 5
+  },
+  "Catskills": {
+    period: "Fall 2024",
+    order: 6
+  },
+  "Summer 2024": {
+    period: "Summer 2024",
+    showPeriod: false,
+    order: 7
+  },
+  "Spring 2024": {
+    period: "Spring 2024",
+    showPeriod: false,
+    order: 8
+  },
+  "Honeymoon": {
+    period: "Fall 2023",
+    order: 9
+  },
+  "Summer 2023": {
+    period: "Summer 2023",
+    showPeriod: false,
+    order: 10
+  },
+  "Fall 2022": {
+    period: "Fall 2022",
+    showPeriod: false,
+    order: 11
+  },
+  "Pacific Northwest Adventures": {
+    period: "Summer 2019",
+    order: 12
+  },
+  "California": {
+    period: "Spring 2019",
+    order: 13
+  },
+  "OHIO": {
+    period: "Summer 2018 - Summer 2019",
+    order: 14
+  },
+  "Harpers Ferry": {
+    period: "Summer 2019",
+    order: 15
+  },
+  "Pit Stop in Pittsburgh": {
+    period: "Spring 2019",
+    order: 16
+  },
+  "A Post-Grad Weekend in DC": {
+    period: "Summer 2018",
+    order: 17
+  },
+  "Maine Fog": {
+    period: "Summer 2018",
+    order: 18
+  },
+  "Backpacking Around Europe": {
+    period: "Summer 2018",
+    description: "First photos I ever took on film!",
+    order: 19
+  },
+
+};
+
+
+// Convert to array and sort collections
+const collections: [string, CloudinaryImage[]][] = Array.from(photosByCollection.entries()).sort((a, b) => {
+  // Put 'Uncategorized' last
+  if (a[0] === "Uncategorized") return 1;
+  if (b[0] === "Uncategorized") return -1;
+  
+  // Sort by order (lower numbers first)
+  const orderA = collectionInfo[a[0]]?.order ?? 999;
+  const orderB = collectionInfo[b[0]]?.order ?? 999;
+  
+  return orderA - orderB;
+});
+
+// Prepare photos data for client-side JavaScript in collection order
+const photosData = [];
+for (const [collectionName, collectionPhotos] of collections) {
+  for (const photo of collectionPhotos) {
+    photosData.push({
+      public_id: photo.public_id,
+      secure_url: photo.secure_url,
+      context: photo.context || {},
+      collection: collectionName,
+    });
+  }
+}
+---
+
+<Simple title="Noah Gorstein | Photos">
+  <main class="container mx-auto px-4 py-8 md:px-8">
+    <div class="mx-auto max-w-[1400px]">
+      <!-- Page Header -->
+      <div class="mb-12">
+        <h1 class="mb-4 text-4xl font-bold">Photos</h1>
+        <p class="text-lg opacity-75">Bunch of photos I've taken on film over the years.</p>
+
+        <!-- TOC for small screens -->
+        {
+          collections.length > 1 && (
+            <nav class="mt-8 rounded-xl border border-foreground/10 bg-background p-6 shadow-sm xl:hidden">
+              <h3 class="mb-4 text-lg font-semibold">Collections</h3>
+              <div class="-mx-6 px-6">
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  {collections.map(([collectionName, collectionPhotos]) => {
+                    const info = collectionInfo[collectionName] || {};
+                    return (
+                      <a
+                        href={`#${collectionName
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                        class="toc-link flex-shrink-0 rounded-lg border border-foreground/10 bg-background px-3 py-2 text-sm text-foreground/70 transition-colors hover:text-foreground hover:border-foreground/20"
+                        data-target={collectionName
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}
+                      >
+                        <div class="whitespace-nowrap">
+                          <div class="font-medium">{collectionName}</div>
+                          <div class="flex items-center gap-2 text-xs opacity-60 mt-1">
+                            <span>{collectionPhotos.length} {collectionPhotos.length === 1 ? 'photo' : 'photos'}</span>
+                            {info.period && info.showPeriod !== false && <span>• {info.period}</span>}
+                          </div>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </nav>
+          )
+        }
+      </div>
+
+      <!-- Main layout with sidebar -->
+      <div class="flex gap-8 xl:gap-12">
+        <!-- Photos content -->
+        <section class="min-w-0 flex-1">
+          {
+            photos.length === 0 ? (
+              <div class="py-12 text-center">
+                <p class="text-lg opacity-50">No photos found.</p>
+              </div>
+            ) : (
+              <div class="space-y-16">
+                {collections.map(([collectionName, collectionPhotos]) => {
+                  let photoIndex = 0;
+                  // Calculate the starting index for this collection
+                  for (const [prevName] of collections) {
+                    if (prevName === collectionName) break;
+                    photoIndex += photosByCollection.get(prevName).length;
+                  }
+
+                  const info = collectionInfo[collectionName] || {};
+
+                  return (
+                    <section
+                      id={collectionName.toLowerCase().replace(/\s+/g, "-")}
+                      class="collection-section"
+                    >
+                      <div class="mb-8">
+                        <h2 class="group mb-2 text-2xl font-bold">
+                          <a 
+                            href={`#${collectionName.toLowerCase().replace(/\s+/g, "-")}`}
+                            class="hover:text-accent transition-colors"
+                          >
+                            {collectionName}
+                            <span class="ml-2 opacity-0 group-hover:opacity-100 transition-opacity text-lg">#</span>
+                          </a>
+                        </h2>
+
+                        {info.description && (
+                          <p class="mb-3 text-base opacity-80">
+                            {info.description}
+                          </p>
+                        )}
+
+                        {((info.period && info.showPeriod !== false) || info.location) && (
+                          <div class="mb-2 flex flex-wrap gap-4 text-sm opacity-60">
+                            {info.period && info.showPeriod !== false && <span>📅 {info.period}</span>}
+                            {info.location && <span>📍 {info.location}</span>}
+                          </div>
+                        )}
+
+                        <p class="text-xs opacity-50">
+                          {collectionPhotos.length}{" "}
+                          {collectionPhotos.length === 1 ? "photo" : "photos"}
+                        </p>
+                      </div>
+
+                      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {collectionPhotos.map((photo, localIndex) => {
+                          const globalIndex = photoIndex + localIndex;
+                          return (
+                            <div
+                              class="photo-item group relative cursor-pointer overflow-hidden rounded-lg border-2 border-foreground/10 transition-colors hover:border-accent"
+                              data-index={globalIndex}
+                            >
+                              <div class="aspect-square overflow-hidden">
+                                <img
+                                  src={`${photo.secure_url.replace(
+                                    "/upload/",
+                                    "/upload/c_fill,w_400,h_400,q_auto,f_auto/"
+                                  )}`}
+                                  alt={
+                                    photo.context?.alt ||
+                                    `Photo ${photo.public_id}`
+                                  }
+                                  class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                  loading="lazy"
+                                />
+                              </div>
+
+                              {(photo.context?.name ||
+                                photo.context?.description ||
+                                photo.context?.caption ||
+                                photo.context?.camera ||
+                                photo.context?.film_stock) && (
+                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                                  {photo.context.name && (
+                                    <p class="text-sm font-bold text-white">
+                                      {photo.context.name}
+                                    </p>
+                                  )}
+                                  {photo.context.description && (
+                                    <p class="mt-1 text-sm text-white/90">
+                                      {photo.context.description}
+                                    </p>
+                                  )}
+                                  {photo.context.caption && (
+                                    <p class="mt-1 text-sm font-medium text-white">
+                                      {photo.context.caption}
+                                    </p>
+                                  )}
+                                  {photo.context.location && (
+                                    <p class="mt-1 text-xs text-white/75">
+                                      📍 {photo.context.location}
+                                    </p>
+                                  )}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+                  );
+                })}
+              </div>
+            )
+          }
+        </section>
+
+        <!-- Sticky TOC Sidebar for large screens -->
+        {
+          collections.length > 1 && (
+            <aside class="hidden w-64 flex-shrink-0 xl:block">
+              <nav class="sticky top-8 rounded-xl border border-foreground/10 bg-background p-6 shadow-sm">
+                <h3 class="mb-4 text-lg font-semibold">Collections</h3>
+                <ul class="space-y-1">
+                  {collections.map(([collectionName, collectionPhotos]) => (
+                    <li>
+                      <a
+                        href={`#${collectionName
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                        class="toc-link block py-1 text-sm text-foreground/70 transition-colors hover:text-foreground"
+                        data-target={collectionName
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}
+                      >
+                        {collectionName}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </aside>
+          )
+        }
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal -->
+  <div
+    id="photoModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/90 p-4"
+    data-photos={JSON.stringify(photosData)}
+  >
+    <div
+      class="relative flex h-full max-h-screen w-full max-w-screen-xl items-center justify-center"
+    >
+      <!-- Close button -->
+      <button
+        id="closeModalBtn"
+        class="absolute right-4 top-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-2xl text-white transition-colors hover:bg-black/70"
+      >
+        ×
+      </button>
+
+      <!-- Navigation arrows -->
+      <button
+        id="prevPhotoBtn"
+        class="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-2xl text-white transition-colors hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        ‹
+      </button>
+      <button
+        id="nextPhotoBtn"
+        class="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-2xl text-white transition-colors hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        ›
+      </button>
+
+      <!-- Loading spinner -->
+      <div
+        id="photoLoadingSpinner"
+        class="absolute inset-0 flex items-center justify-center z-5"
+      >
+        <div class="h-12 w-12 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
+      </div>
+
+      <!-- Image -->
+      <img
+        id="modalImage"
+        src=""
+        alt=""
+        class="max-h-full max-w-full object-contain opacity-0 transition-opacity duration-300"
+      />
+
+      <!-- Metadata overlay -->
+      <div
+        id="modalMetadata"
+        class="absolute bottom-4 left-4 right-4 rounded-lg bg-black/80 p-4 text-white"
+      >
+      </div>
+    </div>
+  </div>
+</Simple>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const photoModalEl = document.getElementById("photoModal");
+    const photos: any[] = photoModalEl && photoModalEl.getAttribute("data-photos")
+      ? JSON.parse(photoModalEl.getAttribute("data-photos") as string)
+      : [];
+
+    let currentPhotoIndex = 0;
+
+    function openModal(index: number) {
+      currentPhotoIndex = index;
+      showPhoto(index);
+      
+      const modal = document.getElementById("photoModal");
+      if (!modal) return;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function showPhoto(index: number) {
+      const modalImage = document.getElementById("modalImage") as HTMLImageElement | null;
+      const modalMetadata = document.getElementById("modalMetadata");
+      const prevBtn = document.getElementById("prevPhotoBtn") as HTMLButtonElement;
+      const nextBtn = document.getElementById("nextPhotoBtn") as HTMLButtonElement;
+      const loadingSpinner = document.getElementById("photoLoadingSpinner");
+      const photo = photos[index];
+
+      if (!modalImage || !modalMetadata || !prevBtn || !nextBtn || !loadingSpinner) return;
+
+      // Show loading spinner and hide image
+      loadingSpinner.style.display = "flex";
+      modalImage.style.opacity = "0";
+
+      // Set up image load handler before setting src
+      const handleImageLoad = () => {
+        loadingSpinner.style.display = "none";
+        modalImage.style.opacity = "1";
+        modalImage.removeEventListener("load", handleImageLoad);
+        modalImage.removeEventListener("error", handleImageError);
+      };
+
+      const handleImageError = () => {
+        loadingSpinner.style.display = "none";
+        modalImage.style.opacity = "1";
+        modalImage.removeEventListener("load", handleImageLoad);
+        modalImage.removeEventListener("error", handleImageError);
+      };
+
+      modalImage.addEventListener("load", handleImageLoad);
+      modalImage.addEventListener("error", handleImageError);
+
+      // Set image with original aspect ratio and higher quality
+      modalImage.src = photo.secure_url.replace(
+        "/upload/",
+        "/upload/q_auto,f_auto,w_1200/"
+      );
+      modalImage.alt = photo.context?.alt || `Photo ${photo.public_id}`;
+
+      // Build metadata HTML
+      let metadataHTML = "";
+      if (photo.collection) {
+        metadataHTML += `<p class="text-xs opacity-60 mb-2">${photo.collection}</p>`;
+      }
+      if (photo.context?.name) {
+        metadataHTML += `<p class="text-lg font-bold">${photo.context.name}</p>`;
+      }
+      if (photo.context?.description) {
+        metadataHTML += `<p class="mt-1 text-sm opacity-90">${photo.context.description}</p>`;
+      }
+      if (
+        photo.context?.location ||
+        photo.context?.camera ||
+        photo.context?.film_stock ||
+        photo.context?.lens
+      ) {
+        metadataHTML +=
+          '<div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs opacity-75">';
+        if (photo.context.location)
+          metadataHTML += `<span>📍 ${photo.context.location}</span>`;
+        if (photo.context.camera)
+          metadataHTML += `<span>📷 ${photo.context.camera}</span>`;
+        if (photo.context.film_stock)
+          metadataHTML += `<span>🎞️ ${photo.context.film_stock}</span>`;
+        if (photo.context.lens)
+          metadataHTML += `<span>🔍 ${photo.context.lens}</span>`;
+        metadataHTML += "</div>";
+      }
+
+      modalMetadata.innerHTML = metadataHTML;
+      
+      // Update navigation button states
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === photos.length - 1;
+    }
+
+    function closeModal() {
+      const modal = document.getElementById("photoModal");
+      if (!modal) return;
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    // Add click listeners to photo items
+    document.querySelectorAll(".photo-item").forEach(function (item) {
+      item.addEventListener("click", function (this: HTMLElement) {
+        const index = parseInt(this.getAttribute("data-index") || "0", 10);
+        openModal(index);
+      });
+    });
+
+    function goToPrevPhoto() {
+      if (currentPhotoIndex > 0) {
+        currentPhotoIndex--;
+        showPhoto(currentPhotoIndex);
+      }
+    }
+
+    function goToNextPhoto() {
+      if (currentPhotoIndex < photos.length - 1) {
+        currentPhotoIndex++;
+        showPhoto(currentPhotoIndex);
+      }
+    }
+
+    // Close modal on escape key and navigate with arrow keys
+    document.addEventListener("keydown", function (e) {
+      const modal = document.getElementById("photoModal");
+      const isModalOpen = modal && !modal.classList.contains("hidden");
+      
+      if (!isModalOpen) return;
+      
+      if (e.key === "Escape") {
+        closeModal();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goToPrevPhoto();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goToNextPhoto();
+      }
+    });
+
+    // Close modal when clicking outside the image
+    const photoModal = document.getElementById("photoModal");
+    if (photoModal) {
+      photoModal.addEventListener("click", function (e) {
+        const modalImage = document.getElementById("modalImage");
+        const modalMetadata = document.getElementById("modalMetadata");
+        const target = e.target as HTMLElement;
+        
+        // Close if clicking on modal background or anywhere that isn't the image, metadata, or buttons
+        if (e.target === this || 
+            (!modalImage?.contains(target) && 
+             !modalMetadata?.contains(target) && 
+             !target.closest('button'))) {
+          closeModal();
+        }
+      });
+    }
+
+    // Close button
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    if (closeModalBtn) {
+      closeModalBtn.addEventListener("click", closeModal);
+    }
+
+    // Navigation buttons
+    const prevPhotoBtn = document.getElementById("prevPhotoBtn");
+    const nextPhotoBtn = document.getElementById("nextPhotoBtn");
+    
+    if (prevPhotoBtn) {
+      prevPhotoBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        goToPrevPhoto();
+      });
+    }
+    
+    if (nextPhotoBtn) {
+      nextPhotoBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        goToNextPhoto();
+      });
+    }
+
+    // TOC scroll tracking
+    const tocLinks = Array.from(document.querySelectorAll(".toc-link")) as HTMLElement[];
+    const sections = Array.from(document.querySelectorAll(".collection-section"));
+
+    function updateActiveTocLink() {
+      let currentSection = "";
+
+      sections.forEach((section) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= 100 && rect.bottom >= 100) {
+          currentSection = (section as HTMLElement).id;
+        }
+      });
+
+      tocLinks.forEach((link) => {
+        if ((link.dataset && link.dataset.target === currentSection)) {
+          link.classList.add("text-accent", "font-medium");
+          link.classList.remove("text-foreground/70");
+        } else {
+          link.classList.add("text-foreground/70");
+          link.classList.remove("text-accent", "font-medium");
+        }
+      });
+    }
+
+    // Update on scroll
+    window.addEventListener("scroll", updateActiveTocLink);
+    // Initial update
+    updateActiveTocLink();
+  });
+</script>
+
+<style>
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
