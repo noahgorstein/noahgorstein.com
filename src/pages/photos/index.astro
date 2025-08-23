@@ -1,7 +1,7 @@
 ---
 import Simple from "../../layouts/Simple.astro";
 
-const CLOUDINARY_CLOUD_NAME = "dn2yh43vf"; // Replace with your Cloudinary cloud name
+const CLOUDINARY_CLOUD_NAME = "dn2yh43vf";
 
 interface CloudinaryImage {
   public_id: string;
@@ -86,119 +86,101 @@ interface CollectionMeta {
   description?: string;
   period?: string;
   location?: string;
+  showPeriod?: boolean;
+  order?: number;
 }
 
 const collectionInfo: Record<string, CollectionMeta> = {
   "Summer 2025": {
-    description: "A collection of photos taken during the summer of 2025",
-    period: "Summer 2025"
+    period: "Summer 2025",
+    showPeriod: false,
+    order: 1
   },
   "First Fuji GS645S Shots": {
     description: "First shots taken with the Fuji GS645S camera. My first time shooting medium format and using a rangefinder.",
-    period: "Summer 2025"
+    period: "Summer 2025",
+    order: 2
   },
   Scotland: {
     description:
       "Week-long trip exploring the Scottish Highlands and Edinburgh",
     period: "April 2025",
+    order: 3
   },
   "Spring 2025": {
-    period: "Spring 2025"
+    period: "Spring 2025",
+    showPeriod: false,
+    order: 4
   },
   "Expired Kodak Royal Gold": {
     description: "Experimenting shooting with Kodak Royal Gold 400 film that expired in 1996",
     period: "Fall 2024",
+    order: 5
   },
   "Catskills": {
     period: "Fall 2024",
+    order: 6
   },
   "Summer 2024": {
-    period: "Summer 2024"
+    period: "Summer 2024",
+    showPeriod: false,
+    order: 7
   },
   "Spring 2024": {
-    period: "Spring 2024"
+    period: "Spring 2024",
+    showPeriod: false,
+    order: 8
   },
   "Honeymoon": {
-    period: "Fall 2023"
+    period: "Fall 2023",
+    order: 9
   },
   "Summer 2023": {
-    period: "Summer 2023"
+    period: "Summer 2023",
+    showPeriod: false,
+    order: 10
   },
   "Fall 2022": {
-    period: "Fall 2022"
+    period: "Fall 2022",
+    showPeriod: false,
+    order: 11
   },
   "Pacific Northwest Adventures": {
-    period: "Summer 2019"
+    period: "Summer 2019",
+    order: 12
   },
   "California": {
-    period: "Spring 2019"
+    period: "Spring 2019",
+    order: 13
   },
   "OHIO": {
-    period: "Summer 2018 - Summer 2019"
+    period: "Summer 2018 - Summer 2019",
+    order: 14
   },
   "Harpers Ferry": {
-    period: "Summer 2019"
+    period: "Summer 2019",
+    order: 15
   },
   "Pit Stop in Pittsburgh": {
-    period: "Spring 2019"
+    period: "Spring 2019",
+    order: 16
   },
   "A Post-Grad Weekend in DC": {
-    period: "Summer 2018"
+    period: "Summer 2018",
+    order: 17
   },
   "Maine Fog": {
-    period: "Summer 2018"
+    period: "Summer 2018",
+    order: 18
   },
   "Backpacking Around Europe": {
     period: "Summer 2018",
-    description: "First photos I ever took on film!"
+    description: "First photos I ever took on film!",
+    order: 19
   },
 
 };
 
-// Function to parse period into sortable date
-function parseperiod(period: string | undefined): Date {
-  if (!period) return new Date(0); // Very old date for collections without period
-  
-  // Handle formats like "April 2025", "Summer 2024", "2023", "December 2022"
-  const normalized = period.toLowerCase().trim();
-  
-  // Try to extract year first
-  const yearMatch = normalized.match(/(\d{4})/);
-  if (!yearMatch) return new Date(0);
-  
-  const year = parseInt(yearMatch[1]);
-  
-  // Month mapping
-  const monthMap: Record<string, number> = {
-    january: 0, jan: 0,
-    february: 1, feb: 1,
-    march: 2, mar: 2,
-    april: 3, apr: 3,
-    may: 4,
-    june: 5, jun: 5,
-    july: 6, jul: 6,
-    august: 7, aug: 7,
-    september: 8, sep: 8, sept: 8,
-    october: 9, oct: 9,
-    november: 10, nov: 10,
-    december: 11, dec: 11,
-    // Seasons (approximate middle months)
-    spring: 3,
-    summer: 6,
-    fall: 9, autumn: 9,
-    winter: 0
-  };
-  
-  // Look for month/season
-  for (const [name, monthIndex] of Object.entries(monthMap)) {
-    if (normalized.includes(name)) {
-      return new Date(year, monthIndex);
-    }
-  }
-  
-  // If just year, use middle of year
-  return new Date(year, 6);
-}
 
 // Convert to array and sort collections
 const collections: [string, CloudinaryImage[]][] = Array.from(photosByCollection.entries()).sort((a, b) => {
@@ -206,15 +188,11 @@ const collections: [string, CloudinaryImage[]][] = Array.from(photosByCollection
   if (a[0] === "Uncategorized") return 1;
   if (b[0] === "Uncategorized") return -1;
   
-  // Sort by period (newest first)
-  const periodA = collectionInfo[a[0]]?.period;
-  const periodB = collectionInfo[b[0]]?.period;
+  // Sort by order (lower numbers first)
+  const orderA = collectionInfo[a[0]]?.order ?? 999;
+  const orderB = collectionInfo[b[0]]?.order ?? 999;
   
-  const dateA = parseperiod(periodA);
-  const dateB = parseperiod(periodB);
-  
-  // Newest first (descending order)
-  return dateB.getTime() - dateA.getTime();
+  return orderA - orderB;
 });
 
 // Prepare photos data for client-side JavaScript in collection order
@@ -225,6 +203,7 @@ for (const [collectionName, collectionPhotos] of collections) {
       public_id: photo.public_id,
       secure_url: photo.secure_url,
       context: photo.context || {},
+      collection: collectionName,
     });
   }
 }
@@ -241,25 +220,34 @@ for (const [collectionName, collectionPhotos] of collections) {
         <!-- TOC for small screens -->
         {
           collections.length > 1 && (
-            <nav class="mt-8 inline-block rounded-xl border border-foreground/10 bg-background p-6 shadow-sm xl:hidden">
+            <nav class="mt-8 rounded-xl border border-foreground/10 bg-background p-6 shadow-sm xl:hidden">
               <h3 class="mb-4 text-lg font-semibold">Collections</h3>
-              <ul class="space-y-3">
-                {collections.map(([collectionName, collectionPhotos]) => (
-                  <li>
-                    <a
-                      href={`#${collectionName
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}`}
-                      class="toc-link block py-1 text-sm text-foreground/70 transition-colors hover:text-foreground"
-                      data-target={collectionName
-                        .toLowerCase()
-                        .replace(/\s+/g, "-")}
-                    >
-                      {collectionName}
-                    </a>
-                  </li>
-                ))}
-              </ul>
+              <div class="-mx-6 px-6">
+                <div class="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                  {collections.map(([collectionName, collectionPhotos]) => {
+                    const info = collectionInfo[collectionName] || {};
+                    return (
+                      <a
+                        href={`#${collectionName
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`}
+                        class="toc-link flex-shrink-0 rounded-lg border border-foreground/10 bg-background px-3 py-2 text-sm text-foreground/70 transition-colors hover:text-foreground hover:border-foreground/20"
+                        data-target={collectionName
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}
+                      >
+                        <div class="whitespace-nowrap">
+                          <div class="font-medium">{collectionName}</div>
+                          <div class="flex items-center gap-2 text-xs opacity-60 mt-1">
+                            <span>{collectionPhotos.length} {collectionPhotos.length === 1 ? 'photo' : 'photos'}</span>
+                            {info.period && info.showPeriod !== false && <span>• {info.period}</span>}
+                          </div>
+                        </div>
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
             </nav>
           )
         }
@@ -272,17 +260,7 @@ for (const [collectionName, collectionPhotos] of collections) {
           {
             photos.length === 0 ? (
               <div class="py-12 text-center">
-                <p class="text-lg opacity-50">No photos found. Make sure to:</p>
-                <ul class="mt-4 space-y-2 text-sm opacity-75">
-                  <li>1. Set up your Cloudinary account</li>
-                  <li>
-                    2. Add CLOUDINARY_API_KEY and CLOUDINARY_API_SECRET to your
-                    .env file
-                  </li>
-                  <li>3. Update CLOUDINARY_CLOUD_NAME in this file</li>
-                  <li>4. Upload photos with the "blog" tag</li>
-                  <li>5. Add "collection" metadata to group your photos</li>
-                </ul>
+                <p class="text-lg opacity-50">No photos found.</p>
               </div>
             ) : (
               <div class="space-y-16">
@@ -318,9 +296,9 @@ for (const [collectionName, collectionPhotos] of collections) {
                           </p>
                         )}
 
-                        {(info.period || info.location) && (
+                        {((info.period && info.showPeriod !== false) || info.location) && (
                           <div class="mb-2 flex flex-wrap gap-4 text-sm opacity-60">
-                            {info.period && <span>📅 {info.period}</span>}
+                            {info.period && info.showPeriod !== false && <span>📅 {info.period}</span>}
                             {info.location && <span>📍 {info.location}</span>}
                           </div>
                         )}
@@ -442,12 +420,34 @@ for (const [collectionName, collectionPhotos] of collections) {
         ×
       </button>
 
+      <!-- Navigation arrows -->
+      <button
+        id="prevPhotoBtn"
+        class="absolute left-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-2xl text-white transition-colors hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        ‹
+      </button>
+      <button
+        id="nextPhotoBtn"
+        class="absolute right-4 top-1/2 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-black/50 text-2xl text-white transition-colors hover:bg-black/70 disabled:opacity-30 disabled:cursor-not-allowed"
+      >
+        ›
+      </button>
+
+      <!-- Loading spinner -->
+      <div
+        id="photoLoadingSpinner"
+        class="absolute inset-0 flex items-center justify-center z-5"
+      >
+        <div class="h-12 w-12 animate-spin rounded-full border-4 border-white/30 border-t-white"></div>
+      </div>
+
       <!-- Image -->
       <img
         id="modalImage"
         src=""
         alt=""
-        class="max-h-full max-w-full object-contain"
+        class="max-h-full max-w-full object-contain opacity-0 transition-opacity duration-300"
       />
 
       <!-- Metadata overlay -->
@@ -467,13 +467,49 @@ for (const [collectionName, collectionPhotos] of collections) {
       ? JSON.parse(photoModalEl.getAttribute("data-photos") as string)
       : [];
 
+    let currentPhotoIndex = 0;
+
     function openModal(index: number) {
+      currentPhotoIndex = index;
+      showPhoto(index);
+      
       const modal = document.getElementById("photoModal");
+      if (!modal) return;
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function showPhoto(index: number) {
       const modalImage = document.getElementById("modalImage") as HTMLImageElement | null;
       const modalMetadata = document.getElementById("modalMetadata");
+      const prevBtn = document.getElementById("prevPhotoBtn") as HTMLButtonElement;
+      const nextBtn = document.getElementById("nextPhotoBtn") as HTMLButtonElement;
+      const loadingSpinner = document.getElementById("photoLoadingSpinner");
       const photo = photos[index];
 
-      if (!modal || !modalImage || !modalMetadata) return;
+      if (!modalImage || !modalMetadata || !prevBtn || !nextBtn || !loadingSpinner) return;
+
+      // Show loading spinner and hide image
+      loadingSpinner.style.display = "flex";
+      modalImage.style.opacity = "0";
+
+      // Set up image load handler before setting src
+      const handleImageLoad = () => {
+        loadingSpinner.style.display = "none";
+        modalImage.style.opacity = "1";
+        modalImage.removeEventListener("load", handleImageLoad);
+        modalImage.removeEventListener("error", handleImageError);
+      };
+
+      const handleImageError = () => {
+        loadingSpinner.style.display = "none";
+        modalImage.style.opacity = "1";
+        modalImage.removeEventListener("load", handleImageLoad);
+        modalImage.removeEventListener("error", handleImageError);
+      };
+
+      modalImage.addEventListener("load", handleImageLoad);
+      modalImage.addEventListener("error", handleImageError);
 
       // Set image with original aspect ratio and higher quality
       modalImage.src = photo.secure_url.replace(
@@ -484,6 +520,9 @@ for (const [collectionName, collectionPhotos] of collections) {
 
       // Build metadata HTML
       let metadataHTML = "";
+      if (photo.collection) {
+        metadataHTML += `<p class="text-xs opacity-60 mb-2">${photo.collection}</p>`;
+      }
       if (photo.context?.name) {
         metadataHTML += `<p class="text-lg font-bold">${photo.context.name}</p>`;
       }
@@ -510,8 +549,10 @@ for (const [collectionName, collectionPhotos] of collections) {
       }
 
       modalMetadata.innerHTML = metadataHTML;
-      modal.classList.remove("hidden");
-      modal.classList.add("flex");
+      
+      // Update navigation button states
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === photos.length - 1;
     }
 
     function closeModal() {
@@ -529,10 +570,35 @@ for (const [collectionName, collectionPhotos] of collections) {
       });
     });
 
-    // Close modal on escape key
+    function goToPrevPhoto() {
+      if (currentPhotoIndex > 0) {
+        currentPhotoIndex--;
+        showPhoto(currentPhotoIndex);
+      }
+    }
+
+    function goToNextPhoto() {
+      if (currentPhotoIndex < photos.length - 1) {
+        currentPhotoIndex++;
+        showPhoto(currentPhotoIndex);
+      }
+    }
+
+    // Close modal on escape key and navigate with arrow keys
     document.addEventListener("keydown", function (e) {
+      const modal = document.getElementById("photoModal");
+      const isModalOpen = modal && !modal.classList.contains("hidden");
+      
+      if (!isModalOpen) return;
+      
       if (e.key === "Escape") {
         closeModal();
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        goToPrevPhoto();
+      } else if (e.key === "ArrowRight") {
+        e.preventDefault();
+        goToNextPhoto();
       }
     });
 
@@ -540,7 +606,15 @@ for (const [collectionName, collectionPhotos] of collections) {
     const photoModal = document.getElementById("photoModal");
     if (photoModal) {
       photoModal.addEventListener("click", function (e) {
-        if (e.target === this) {
+        const modalImage = document.getElementById("modalImage");
+        const modalMetadata = document.getElementById("modalMetadata");
+        const target = e.target as HTMLElement;
+        
+        // Close if clicking on modal background or anywhere that isn't the image, metadata, or buttons
+        if (e.target === this || 
+            (!modalImage?.contains(target) && 
+             !modalMetadata?.contains(target) && 
+             !target.closest('button'))) {
           closeModal();
         }
       });
@@ -550,6 +624,24 @@ for (const [collectionName, collectionPhotos] of collections) {
     const closeModalBtn = document.getElementById("closeModalBtn");
     if (closeModalBtn) {
       closeModalBtn.addEventListener("click", closeModal);
+    }
+
+    // Navigation buttons
+    const prevPhotoBtn = document.getElementById("prevPhotoBtn");
+    const nextPhotoBtn = document.getElementById("nextPhotoBtn");
+    
+    if (prevPhotoBtn) {
+      prevPhotoBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        goToPrevPhoto();
+      });
+    }
+    
+    if (nextPhotoBtn) {
+      nextPhotoBtn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        goToNextPhoto();
+      });
     }
 
     // TOC scroll tracking
@@ -583,3 +675,13 @@ for (const [collectionName, collectionPhotos] of collections) {
     updateActiveTocLink();
   });
 </script>
+
+<style>
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+</style>
