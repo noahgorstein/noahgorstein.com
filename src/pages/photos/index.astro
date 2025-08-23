@@ -210,12 +210,26 @@ for (const [collectionName, collectionPhotos] of collections) {
 ---
 
 <Simple title="Noah Gorstein | Photos">
-  <main class="container mx-auto px-4 py-8 md:px-8">
+  <main class="container mx-auto px-3 py-6 sm:px-4 sm:py-8 md:px-8">
     <div class="mx-auto max-w-[1400px]">
       <!-- Page Header -->
-      <div class="mb-12">
-        <h1 class="mb-4 text-4xl font-bold">Photos</h1>
-        <p class="text-lg opacity-75">Bunch of photos I've taken on film over the years.</p>
+      <div class="page-header mb-8 sm:mb-12">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h1 class="page-title mb-3 sm:mb-4 text-3xl sm:text-4xl font-bold">Photos</h1>
+            <p class="text-lg opacity-75">Bunch of photos I've taken on film over the years.</p>
+          </div>
+          
+          <!-- Layout toggle button -->
+          <button
+            id="layoutToggle"
+            class="flex-shrink-0 mt-1 px-3 py-2 text-xs sm:text-sm bg-foreground/5 hover:bg-foreground/10 rounded-lg border border-foreground/10 transition-colors flex items-center gap-2"
+            aria-label="Toggle layout density"
+          >
+            <span id="layoutToggleIcon">⊞</span>
+            <span id="layoutToggleText">Comfortable</span>
+          </button>
+        </div>
 
         <!-- TOC for small screens -->
         {
@@ -288,8 +302,8 @@ for (const [collectionName, collectionPhotos] of collections) {
                       id={collectionName.toLowerCase().replace(/\s+/g, "-")}
                       class="collection-section"
                     >
-                      <div class="mb-8">
-                        <h2 class="group mb-2 text-2xl font-bold">
+                      <div class="collection-header mb-6 sm:mb-8">
+                        <h2 class="collection-title group mb-2 text-xl sm:text-2xl font-bold">
                           <a 
                             href={`#${collectionName.toLowerCase().replace(/\s+/g, "-")}`}
                             class="hover:text-accent transition-colors"
@@ -300,13 +314,13 @@ for (const [collectionName, collectionPhotos] of collections) {
                         </h2>
 
                         {info.description && (
-                          <p class="mb-3 text-base opacity-80">
+                          <p class="collection-description mb-2 sm:mb-3 text-sm sm:text-base opacity-80">
                             {info.description}
                           </p>
                         )}
 
                         {((info.period && info.showPeriod !== false) || info.location) && (
-                          <div class="mb-2 flex flex-wrap gap-4 text-sm opacity-60">
+                          <div class="collection-meta mb-2 flex flex-wrap gap-4 text-sm opacity-60">
                             {info.period && info.showPeriod !== false && <span>📅 {info.period}</span>}
                             {info.location && <span>📍 {info.location}</span>}
                           </div>
@@ -318,12 +332,12 @@ for (const [collectionName, collectionPhotos] of collections) {
                         </p>
                       </div>
 
-                      <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                      <div class="photo-grid grid grid-cols-2 gap-3 sm:gap-6 lg:grid-cols-3">
                         {collectionPhotos.map((photo, localIndex) => {
                           const globalIndex = photoIndex + localIndex;
                           return (
                             <div
-                              class="photo-item group relative cursor-pointer overflow-hidden rounded-lg border-2 border-foreground/10 transition-colors hover:border-accent"
+                              class="photo-item group relative cursor-pointer overflow-hidden rounded border sm:rounded-lg border sm:border-2 border-foreground/10 transition-colors hover:border-accent"
                               data-index={globalIndex}
                             >
                               <div class="aspect-square overflow-hidden">
@@ -346,19 +360,19 @@ for (const [collectionName, collectionPhotos] of collections) {
                                 photo.context?.caption ||
                                 photo.context?.camera ||
                                 photo.context?.film_stock) && (
-                                <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                                <div class="photo-overlay absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 sm:p-4">
                                   {photo.context.name && (
-                                    <p class="text-sm font-bold text-white">
+                                    <p class="text-xs sm:text-sm font-bold text-white">
                                       {photo.context.name}
                                     </p>
                                   )}
                                   {photo.context.description && (
-                                    <p class="mt-1 text-sm text-white/90">
+                                    <p class="mt-1 text-xs sm:text-sm text-white/90 hidden sm:block">
                                       {photo.context.description}
                                     </p>
                                   )}
                                   {photo.context.caption && (
-                                    <p class="mt-1 text-sm font-medium text-white">
+                                    <p class="mt-1 text-xs sm:text-sm font-medium text-white hidden sm:block">
                                       {photo.context.caption}
                                     </p>
                                   )}
@@ -765,6 +779,49 @@ for (const [collectionName, collectionPhotos] of collections) {
       window.addEventListener("scroll", updateBackToTop);
       // Initial check
       updateBackToTop();
+    }
+
+    // Layout toggle functionality
+    const layoutToggle = document.getElementById("layoutToggle");
+    const layoutToggleText = document.getElementById("layoutToggleText");
+    const layoutToggleIcon = document.getElementById("layoutToggleIcon");
+
+    if (layoutToggle && layoutToggleText && layoutToggleIcon) {
+      let isComfortable = localStorage.getItem("photoLayout") === "comfortable";
+
+      function updateLayout() {
+        const photoGrids = document.querySelectorAll(".photo-grid");
+        
+        if (isComfortable) {
+          // Comfortable layout - 1→2→3 columns with generous spacing
+          photoGrids.forEach(grid => {
+            grid.style.gridTemplateColumns = "";
+            grid.style.gap = "";
+            grid.className = "photo-grid grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3";
+          });
+          layoutToggleIcon.textContent = "⊞";
+          layoutToggleText.textContent = "Compact";
+          localStorage.setItem("photoLayout", "comfortable");
+        } else {
+          // Compact layout - 2→3→4 columns with tight spacing
+          photoGrids.forEach(grid => {
+            grid.style.gridTemplateColumns = "";
+            grid.style.gap = "";
+            grid.className = "photo-grid grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 lg:gap-6";
+          });
+          layoutToggleIcon.textContent = "⊟";
+          layoutToggleText.textContent = "Comfortable";
+          localStorage.setItem("photoLayout", "compact");
+        }
+      }
+
+      // Apply saved layout on load
+      updateLayout();
+
+      layoutToggle.addEventListener("click", function() {
+        isComfortable = !isComfortable;
+        updateLayout();
+      });
     }
   });
 </script>
