@@ -408,25 +408,28 @@ for (const [collectionName, collectionPhotos] of collections) {
         {
           collections.length > 1 && (
             <aside class="hidden w-64 flex-shrink-0 xl:block">
-              <nav class="sticky top-8 rounded-xl border border-foreground/10 bg-background p-6 shadow-sm">
-                <h3 class="mb-4 text-lg font-semibold">Collections</h3>
-                <ul class="space-y-1">
-                  {collections.map(([collectionName, collectionPhotos]) => (
-                    <li>
-                      <a
-                        href={`#${collectionName
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}`}
-                        class="toc-link block py-1 text-sm text-foreground/70 transition-colors hover:text-foreground"
-                        data-target={collectionName
-                          .toLowerCase()
-                          .replace(/\s+/g, "-")}
-                      >
-                        {collectionName}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+              <nav class="sticky top-8 rounded-xl border border-foreground/10 bg-background p-6 shadow-sm max-h-[calc(100vh-4rem)] flex flex-col">
+                <h3 class="mb-4 text-lg font-semibold flex-shrink-0">Collections</h3>
+                <div class="relative flex-1 overflow-hidden flex flex-col">
+                  <ul class="collections-scroll space-y-1 overflow-y-auto flex-1">
+                    {collections.map(([collectionName, collectionPhotos]) => (
+                      <li>
+                        <a
+                          href={`#${collectionName
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}`}
+                          class="toc-link block py-1 text-sm text-foreground/70 transition-colors hover:text-foreground"
+                          data-target={collectionName
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}
+                        >
+                          {collectionName}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                  <div class="collections-fade pointer-events-none absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-background to-transparent transition-opacity duration-300"></div>
+                </div>
               </nav>
             </aside>
           )
@@ -831,6 +834,32 @@ for (const [collectionName, collectionPhotos] of collections) {
         isComfortable = !isComfortable;
         updateLayout();
       });
+    }
+
+    // Handle collections scroll fade
+    const collectionsScroll = document.querySelector(".collections-scroll");
+    const collectionsFade = document.querySelector(".collections-fade");
+
+    if (collectionsScroll && collectionsFade) {
+      function updateFade() {
+        const { scrollTop, scrollHeight, clientHeight } = collectionsScroll;
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 5; // 5px threshold
+
+        if (isAtBottom) {
+          collectionsFade.style.opacity = "0";
+        } else {
+          collectionsFade.style.opacity = "1";
+        }
+      }
+
+      // Initial check
+      updateFade();
+
+      // Update on scroll
+      collectionsScroll.addEventListener("scroll", updateFade);
+
+      // Update on resize
+      window.addEventListener("resize", updateFade);
     }
   });
 </script>
